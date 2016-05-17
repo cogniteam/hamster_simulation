@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+  <name>hamster_vehicle_gazebo</name>
+  <version>0.0.0</version>
+  <description>The hamster_vehicle_gazebo package</description>
+  <maintainer email="ofir@todo.todo">ofir</maintainer>
+
+  <license>TODO</license>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>ackermann_msgs</run_depend>
+  <run_depend>hamster_vehicle_description</run_depend>
+  <run_depend>controller_manager</run_depend>
+  <run_depend>gazebo_ros</run_depend>
+  <run_depend>gazebo_ros_control</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>xacro</run_depend>
+
+  <export>
+  </export>
+</package>

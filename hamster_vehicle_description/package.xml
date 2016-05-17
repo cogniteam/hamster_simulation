@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package>
+  <name>hamster_vehicle_description</name>
+  <version>0.0.0</version>
+  <description>The hamster_vehicle_description package</description>
+  <maintainer email="ofir@todo.todo">ofir</maintainer>
+
+  <license>TODO</license>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>joint_state_publisher</run_depend>
+  <run_depend>robot_state_publisher</run_depend>
+  <run_depend>xacro</run_depend>
+
+  <export>
+    
+  </export>
+</package>
