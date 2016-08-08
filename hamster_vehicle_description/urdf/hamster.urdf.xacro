@@ -375,7 +375,9 @@
           <format>R8G8B8</format>
         </image>
       </camera>
-      <plugin name="camera_plugin" filename="libgazebo_ros_camera.so" />
+      <plugin name="camera_plugin" filename="libgazebo_ros_camera.so" >
+	     <imageTopicName>image</imageTopicName>
+      </plugin>
     </sensor>
   </gazebo>
 
@@ -406,7 +408,7 @@
           <gaussianNoise>0.005</gaussianNoise>
           <alwaysOn>true</alwaysOn>
           <updateRate>2</updateRate>
-          <topicName>scan_raw</topicName>
+          <topicName>scan</topicName>
           <frameName>base_link</frameName>
           <hokuyoMinIntensity>101</hokuyoMinIntensity>
         </plugin>
