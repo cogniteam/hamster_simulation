@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
-project(hamster_vehicle)
-find_package(catkin REQUIRED)
-catkin_metapackage()
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
+PROJECT(hamster_vehicle)
+FIND_PACKAGE(catkin REQUIRED)
+CATKIN_PACKAGE()

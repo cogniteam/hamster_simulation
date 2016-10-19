@@ -1,26 +1,35 @@
-cmake_minimum_required(VERSION 2.8.3)
-project(hamster_teleop)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
+PROJECT(hamster_teleop)
 
-find_package(
+FIND_PACKAGE(
   catkin REQUIRED COMPONENTS
   ackermann_msgs
   roscpp
   sensor_msgs
   geometry_msgs
 )
-find_package(Boost REQUIRED COMPONENTS)
 
-catkin_package(
+FIND_PACKAGE(Boost REQUIRED COMPONENTS)
 
-)
+CATKIN_PACKAGE()
 
-include_directories(
+INCLUDE_DIRECTORIES(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(hamster_teleop_node
+ADD_EXECUTABLE(hamster_teleop_node
 	src/joystick_teleop_node.cpp)
 
-target_link_libraries(hamster_teleop_node
+TARGET_LINK_LIBRARIES(hamster_teleop_node
   ${catkin_LIBRARIES}
+)
+
+INSTALL(TARGETS hamster_teleop_node
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+INSTALL(DIRECTORY scripts/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scripts/
 )
