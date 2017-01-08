@@ -492,7 +492,6 @@
     <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
       <frameName>map</frameName>
       <bodyName>base_link</bodyName>
-      <tfName>base_link</tfName>
       <topicName>odom</topicName>
       <updateRate>5.0</updateRate>
     </plugin>
