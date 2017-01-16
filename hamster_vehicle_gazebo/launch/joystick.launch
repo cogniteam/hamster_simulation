@@ -3,9 +3,10 @@
   <arg name="agent" default="agent1"/>
   <arg name="scale_linear" default="2"/>
   <arg name="scale_angular" default="4"/>
+  <arg name="dev" default="/dev/input/js0"/>
   
   <node name="hamster_teleop_node" pkg="hamster_teleop" type="hamster_teleop_node" output="screen">
-	 <param name="dev" value="/dev/input/js0" />
+	 <param name="dev" value="$(arg dev)" />
 	 <param name="scale_linear" value="$(arg scale_linear)"/>
 	 <param name="scale_angular" value="$(arg scale_angular)"/>
 	 <remap from="/ackermann_cmd" to="/$(arg agent)/ackermann_cmd"/>
