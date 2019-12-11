@@ -52,7 +52,3 @@ colcon bundle
 ```
 
 This produces the artifacts `simulation_ws/bundle/output.tar` respectively.
-To upload result to AWS cloud follow the link: 
-https://wiki.cogni.io/Category:Hamster/AWSSimulation
-
-
