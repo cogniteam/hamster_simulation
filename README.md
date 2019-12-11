@@ -26,10 +26,11 @@ colcon build
 
 Launch the simulation with the following commands:
 
-    ```bash
-    source simulation_ws/install/local_setup.sh
-    roslaunch hamster_vehicle_gazebo hamster_multi_vehicle.launch
-    ```
+```bash
+source simulation_ws/install/local_setup.sh
+roslaunch hamster_vehicle_gazebo hamster_multi_vehicle.launch
+```
+By default 2 hamsters appears, to change robot count - edit hamster_multi_vehicle.launch in order to instructions inside.
 
 ## Using this sample with RoboMaker
 
