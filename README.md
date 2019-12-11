@@ -41,7 +41,7 @@ pip3 install -U setuptools
 pip3 install colcon-ros-bundle
 ```
 
-After colcon-ros-bundle is installed you need to build your robot or simulation, then you can bundle with:
+After colcon-ros-bundle is installed you need to build your simulation, then you can bundle with:
 
 ```bash
 
