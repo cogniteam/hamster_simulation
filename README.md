@@ -52,7 +52,7 @@ colcon bundle
 ```
 
 This produces the artifacts `simulation_ws/bundle/output.tar` respectively.
-You'll need to upload these to an s3 bucket, then you can use these files to
-[create a simulation application](https://docs.aws.amazon.com/robomaker/latest/dg/create-simulation-application.html),
-and [create a simulation job](https://docs.aws.amazon.com/robomaker/latest/dg/create-simulation-job.html) in RoboMaker.
+To upload result to AWS cloud follow the link: 
+https://wiki.cogni.io/Category:Hamster/AWSSimulation
+
 
