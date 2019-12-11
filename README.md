@@ -54,7 +54,7 @@ colcon bundle
 This produces the artifacts `simulation_ws/bundle/output.tar` respectively.
 Next steps: 
 1. Setup your AWS for simulation
-[aws_setup_for_hamster_simulation](https://github.com/cogniteam/hamster_simulation/wiki/AWS-setup-for-hamster-simulation)
+[AWS setup for hamster simulation](https://github.com/cogniteam/hamster_simulation/wiki/AWS-setup-for-hamster-simulation)
 
 2. Upload your `output.tar` to your S3 bucket.
 
