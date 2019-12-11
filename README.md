@@ -64,4 +64,6 @@ Next steps:
 4. Configure simulation job
 [Hamster simulation job](https://github.com/cogniteam/hamster_simulation/wiki/Hamster-simulation-job)
 
-5. See environment and robots in gazebo and Bob's your uncle! 
+5. See environment and robots in gazebo 
+
+6. Bob's your uncle! 
