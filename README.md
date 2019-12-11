@@ -52,3 +52,4 @@ colcon bundle
 ```
 
 This produces the artifacts `simulation_ws/bundle/output.tar` respectively.
+[aws_setup_for_hamster_simulation](https://github.com/cogniteam/hamster_simulation/wiki/AWS-setup-for-hamster-simulation)
