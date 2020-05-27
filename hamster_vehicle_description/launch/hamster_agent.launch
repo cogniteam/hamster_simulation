@@ -23,22 +23,19 @@
                 -P $(arg pitch) 
                 -Y $(arg yaw)"/>
 
-    <!-- Load the joint controllers. One of these publishes the joint states
-         to joint_states. -->
-    <node name="controller_spawner" pkg="controller_manager" type="spawner"
-          args="$(find hamster_vehicle_gazebo)/config/hamster_joint_ctrlr_params.yaml" output="screen"/>
-    
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
       <param name="publish_frequency" value="500" />
       <param name="tf_prefix" value="$(arg agent)" />
     </node>
+
+    <param name="robot_description" command="$(find xacro)/xacro $(find hamster_vehicle_description)/urdf/hamster.urdf.xacro"/>
     
     <!-- Control the steering, axle, and shock absorber joints. -->
-    <node name="hamster_ackermann_controller" pkg="hamster_vehicle_gazebo"
+    <!-- <node name="hamster_ackermann_controller" pkg="hamster_vehicle_gazebo"
           type="ackermann_controller.py">
       <param name="cmd_timeout" value="$(arg cmd_timeout)"/>
       <rosparam file="$(find hamster_vehicle_gazebo)/config/hamster_ackermann_ctrlr_params.yaml" command="load"/>
       <param name="tf_prefix" value="$(arg agent)"/>
-    </node>  
+    </node>   -->
   </group>
 </launch>

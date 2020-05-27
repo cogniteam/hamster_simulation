@@ -4,7 +4,8 @@
   <arg name="cmd_timeout" default="0.5"/>
   <arg name="use_joystick" default="false"/>
 
-  <include file="$(find hamster_vehicle_gazebo)/launch/hamster_world.launch"/>
+  <!-- <include file="$(find hamster_vehicle_gazebo)/launch/hamster_world.launch"/> -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
   <include file="$(find hamster_vehicle_gazebo)/launch/hamster_vehicle_spawner.launch">
     <arg name="agent" value="agent1"/>
     <arg name="cmd_timeout" value="$(arg cmd_timeout)"/>

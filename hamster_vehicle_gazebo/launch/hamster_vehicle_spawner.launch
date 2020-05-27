@@ -22,7 +22,9 @@
       <arg name="dev" value="$(arg joystick_dev)"/>
     </include>
   </group>
+
+  <param name="robot_description" command="$(find xacro)/xacro $(find hamster_vehicle_description)/urdf/hamster.urdf.xacro"/>
  
-  <node pkg="rostopic" type="rostopic" name="rotate_lidar_for_$(arg agent)" args="pub /$(arg agent)/body_to_hokuyo_mesh_ctrl/command std_msgs/Float64 'data: 8.0'"/>  
+  <!-- <node pkg="rostopic" type="rostopic" name="rotate_lidar_for_$(arg agent)" args="pub /$(arg agent)/body_to_hokuyo_mesh_ctrl/command std_msgs/Float64 'data: 8.0'"/>   -->
  </group>
 </launch>

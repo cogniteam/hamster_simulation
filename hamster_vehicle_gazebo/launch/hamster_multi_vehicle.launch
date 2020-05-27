@@ -28,7 +28,7 @@
   <!-- /////////////////////////////////////////////////////////////////////////////////// -->
   <!-- ///////////////////////////////////// Agent2 ////////////////////////////////////// -->
   <!-- /////////////////////////////////////////////////////////////////////////////////// -->
-  <group>
+  <!-- <group>
     <arg name="agent" value="agent2"/>
     <include file="$(find hamster_vehicle_gazebo)/launch/hamster_vehicle_spawner.launch">
       <arg name="agent" value="$(arg agent)"/>
@@ -38,5 +38,5 @@
       <arg name="sx" value="1"/>
       <arg name="sy" value="0"/>
     </include>
-  </group>
+  </group> -->
 </launch>
