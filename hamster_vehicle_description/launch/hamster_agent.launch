@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <launch>
-  <arg name="agent" default="agent1"/>
+  <arg name="agent" default="agent2"/>
   <arg name="cmd_timeout" default="0.5"/>
   <arg name="x" default="2.0"/>
   <arg name="y" default="-2.0"/>
@@ -12,9 +12,17 @@
   
   <group ns="$(arg agent)">
     <!-- Spawn the vehicle. -->
-    <node name="spawn_vehicle" pkg="gazebo_ros" type="spawn_model"
+    <param name="robot_description" command="$(find xacro)/xacro $(find hamster_vehicle_description)/urdf/hamster.urdf.xacro"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+      <param name="publish_frequency" value="500" />
+      <param name="tf_prefix" value="$(arg agent)" />
+    </node>
+    <node name="joint_state_publisher_simulation" pkg="joint_state_publisher" type="joint_state_publisher"/>
+  </group>
+
+  <node name="spawn_vehicle" pkg="gazebo_ros" type="spawn_model"
           args="-urdf 
-		-param /robot_description
+		            -param /$(arg agent)/robot_description
                 -model $(arg agent)
                 -x $(arg x) 
                 -y $(arg y) 
@@ -22,20 +30,4 @@
                 -R $(arg roll) 
                 -P $(arg pitch) 
                 -Y $(arg yaw)"/>
-
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
-      <param name="publish_frequency" value="500" />
-      <param name="tf_prefix" value="$(arg agent)" />
-    </node>
-
-    <param name="robot_description" command="$(find xacro)/xacro $(find hamster_vehicle_description)/urdf/hamster.urdf.xacro"/>
-    
-    <!-- Control the steering, axle, and shock absorber joints. -->
-    <!-- <node name="hamster_ackermann_controller" pkg="hamster_vehicle_gazebo"
-          type="ackermann_controller.py">
-      <param name="cmd_timeout" value="$(arg cmd_timeout)"/>
-      <rosparam file="$(find hamster_vehicle_gazebo)/config/hamster_ackermann_ctrlr_params.yaml" command="load"/>
-      <param name="tf_prefix" value="$(arg agent)"/>
-    </node>   -->
-  </group>
 </launch>

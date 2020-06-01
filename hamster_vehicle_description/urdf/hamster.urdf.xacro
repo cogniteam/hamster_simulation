@@ -10,6 +10,8 @@
               izz="${m*(w*w+h*h)/12}" /> 
     </xacro:macro>
 
+  <xacro:arg name="agent" default="agent1" />
+
   <link name="base_link">
     <inertial>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -56,11 +58,11 @@
         <child  link="imu_link" />
     </joint>
 
-      <joint name="hokuyo_joint" type="fixed">
+  <joint name="hokuyo_joint" type="fixed">
     <axis xyz="0 1 0" />
-    <origin xyz="0 0 ${height3 - axel_offset/2}" rpy="0 0 0"/>
-    <parent link="link3"/>
-    <child link="hokuyo_link"/>
+    <origin xyz="-0.05 0 0.115" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
   </joint>
 
   <!-- Hokuyo Laser -->
@@ -92,7 +94,7 @@
 
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-        <robotNamespace>/</robotNamespace>
+        <robotNamespace>$(arg agent)</robotNamespace>
         <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
         <legacyModeNS>true</legacyModeNS>
     </plugin>
@@ -103,7 +105,7 @@
       <plugin name="skid_steer_drive_controller" filename="libgazebo_ros_skid_steer_drive.so">
           <alwaysOn>1</alwaysOn>
           <updateRate>100.0</updateRate>
-          <robotNamespace>/</robotNamespace>
+          <robotNamespace>$(arg agent)</robotNamespace>
           <leftFrontJoint>front_left_wheel_joint</leftFrontJoint>
           <rightFrontJoint>front_right_wheel_joint</rightFrontJoint>
           <leftRearJoint>rear_left_wheel_joint</leftRearJoint>

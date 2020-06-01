@@ -4,7 +4,7 @@
   <arg name="world_name" default="$(find hamster_vehicle_gazebo)/worlds/cogni_office.world"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <!-- <arg name="world_name" value="$(arg world_name)"/> -->
+    <arg name="world_name" value="$(arg world_name)"/>
     <arg name="gui" value="true"/>
     <arg name="headless" value="false"/>
   </include>  
