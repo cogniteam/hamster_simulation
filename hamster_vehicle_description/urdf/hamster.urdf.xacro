@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<robot name="agent" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="hamster" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:include filename="$(find hamster_vehicle_description)/urdf/wheel.urdf.xacro" />
 
@@ -110,6 +110,18 @@
   <wheel fr="rear" lr="right" parent="base_link" origin_x="-0.085" origin_y="-0.086" origin_z="-0.01"/>
   <wheel fr="rear" lr="left" parent="base_link" origin_x="-0.085" origin_y="0.086" origin_z="-0.01"/> 
 
+  <joint name="front_right_wheel_steering_joint" type="continuous">
+    <parent link="${parent}"/>
+    <child link="front_right_wheel_steering"/>
+    <axis xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+  
+  <joint name="front_left_wheel_steering_joint" type="continuous">
+    <parent link="${parent}"/>
+    <child link="front_left_wheel_steering"/>
+    <axis xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
       <robotNamespace>$(arg agent)</robotNamespace>
@@ -120,7 +132,7 @@
 
             <!-- Skid steer drive controller -->
   <gazebo>
-    <plugin name="skid_steer_drive_controller" filename="libgazebo_ros_skid_steer_drive.so">
+    <!-- <plugin name="skid_steer_drive_controller" filename="libgazebo_ros_skid_steer_drive.so">
       <alwaysOn>1</alwaysOn>
       <updateRate>100.0</updateRate>
       <robotNamespace>$(arg agent)</robotNamespace>
@@ -140,7 +152,7 @@
       <covariance_y>0.0001</covariance_y>
       <covariance_z>0.0001</covariance_z>
       <covariance_yaw>0.0001</covariance_yaw>
-    </plugin>
+    </plugin> -->
   </gazebo>
 
   <gazebo reference="imu_link">
