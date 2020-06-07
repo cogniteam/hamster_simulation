@@ -8,6 +8,7 @@ find_package(gazebo REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   ackermann_msgs
+  gazebo_ros
 )
 
 catkin_package()
@@ -25,7 +26,11 @@ include_directories(
 # Build
 #
 
-catkin_package()
+catkin_package(
+  DEPENDS
+    roscpp
+    gazebo_ros
+)
 
 include_directories(
   include 
@@ -39,6 +44,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
 add_library(gazebo_ackermann_drive SHARED 
   src/AckermannDrivePlugin.cpp
+)
+
+install(TARGETS gazebo_ackermann_drive
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 

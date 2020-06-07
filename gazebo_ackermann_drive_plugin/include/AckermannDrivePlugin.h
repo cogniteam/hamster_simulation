@@ -41,6 +41,9 @@
 #include <ros/ros.h>
 
 
+#include <cmath>
+
+
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/Joint.hh>
 #include <gazebo/physics/JointController.hh>
@@ -51,6 +54,8 @@
 
 
 namespace gazebo{
+
+using namespace std;
 
 class AckermannDrivePlugin : public ModelPlugin {
 
@@ -64,6 +69,8 @@ public:
 
     virtual void Load(physics::ModelPtr model, sdf::ElementPtr sdf);
 
+    void Update(const common::UpdateInfo &info);
+
 private:
 
     void commandCallback(const ackermann_msgs::AckermannDriveStamped::Ptr& cmd);
@@ -74,6 +81,9 @@ private:
     
     physics::ModelPtr model_;
 
+    event::ConnectionPtr updateConnection_;
+
+    std::string robotNamespace_;
     
 };
 

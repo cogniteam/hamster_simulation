@@ -10,8 +10,10 @@
   <license>Proprietary</license>
   <exec_depend>ackermann_msgs</exec_depend>
   <exec_depend>roscpp</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
 
   <build_depend>roscpp</build_depend>
   <build_depend>ackermann_msgs</build_depend>
+  <build_depend>gazebo_ros</build_depend>
 
 </package>

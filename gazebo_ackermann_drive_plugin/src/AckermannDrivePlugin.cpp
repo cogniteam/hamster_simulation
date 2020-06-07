@@ -40,12 +40,7 @@ namespace gazebo{
 
 
 AckermannDrivePlugin::AckermannDrivePlugin() {
-
-    ros::NodeHandle node;
-
-    cmdSubscriber_ = node.subscribe(
-        "ackermann_cmd", 2, &AckermannDrivePlugin::commandCallback, this);
-
+    
 }
 
 AckermannDrivePlugin::~AckermannDrivePlugin() {
@@ -55,41 +50,100 @@ AckermannDrivePlugin::~AckermannDrivePlugin() {
 void AckermannDrivePlugin::commandCallback(
     const ackermann_msgs::AckermannDriveStamped::Ptr& cmd) {
 
+    this->model_->GetJoint(robotNamespace_ + "::" + "rear_left_wheel_joint")->
+                SetVelocity(0, cmd->drive.speed);
 
+    this->model_->GetJoint(robotNamespace_ + "::" + "rear_right_wheel_joint")->
+                SetVelocity(0, cmd->drive.speed);
 
+    this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_joint")->
+                SetVelocity(0, cmd->drive.speed);
+
+    this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_joint")->
+                SetVelocity(0, cmd->drive.speed);
+
+    //
+    // Steering angle constraints. In rads
+    //
+    
+    auto wheelSteering = fmax(-0.2967, fmin(cmd->drive.steering_angle, 0.2967)); 
+    
+    this->model_->GetJointController()->SetPositionTarget(
+        this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_steering_joint")->GetScopedName(), 
+        cmd->drive.steering_angle);
+
+    this->model_->GetJointController()->SetPositionTarget(
+        this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_steering_joint")->GetScopedName(), 
+        cmd->drive.steering_angle);
+            
 }
 
 void AckermannDrivePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf) {
 
+    ROS_INFO("Load");
+
+    robotNamespace_ = sdf->Get<std::string>("robotNamespace");
+
+    ros::NodeHandle node;
+
+    cmdSubscriber_ = node.subscribe(
+        robotNamespace_ + "/ackermann_cmd", 2, &AckermannDrivePlugin::commandCallback, this);
+  
     this->model_ = model;
 
     this->updateConnection_ = event::Events::ConnectWorldUpdateBegin(
             std::bind(&AckermannDrivePlugin::Update, this, std::placeholders::_1));
 
-    // this->model_->GetJoint("xact_camera::yaw_joint")->SetPosition(0, 0);
+    this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_joint")->SetVelocity(0, 0);
     
-    // this->model_->GetJoint("xact_camera::pitch_joint")->SetPosition(0, 0);
+    this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_joint")->SetVelocity(0, 0);
+
+    this->model_->GetJoint(robotNamespace_ + "::" + "rear_right_wheel_joint")->SetVelocity(0, 0);
+
+    this->model_->GetJoint(robotNamespace_ + "::" + "rear_left_wheel_joint")->SetVelocity(0, 0);
+
+    this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_steering_joint")->SetVelocity(0, 0);
+
+    this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_steering_joint")->SetVelocity(0, 0);
+
+    this->model_->GetJoint(robotNamespace_ + "::" + "rear_right_wheel_steering_joint")->SetVelocity(0, 0);
+
+    this->model_->GetJoint(robotNamespace_ + "::" + "rear_left_wheel_steering_joint")->SetVelocity(0, 0);
 
     this->model_->GetJointController()->SetPositionPID(
-            this->model_->GetJoint("xact_camera::yaw_joint")->GetScopedName(), 
-            yawPid_);
+            this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_steering_joint")->GetScopedName(), 
+            common::PID(100,0,0));
+
+    ROS_INFO("SetPositionPID front_right_wheel_steering_joint");
 
     this->model_->GetJointController()->SetPositionPID(
-            this->model_->GetJoint("xact_camera::pitch_joint")->GetScopedName(), 
-            pitchPid_);
+            this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_steering_joint")->GetScopedName(), 
+            common::PID(100,0,0));
 
-    this->model_->GetJointController()->SetPositionTarget(
-            this->model_->GetJoint("xact_camera::yaw_joint")->GetScopedName(), 
-            M_PI);
+    this->model_->GetJointController()->SetVelocityPID(
+            this->model_->GetJoint(robotNamespace_ + "::" + "rear_right_wheel_joint")->GetScopedName(), 
+            common::PID(100,0,0));
 
-    this->model_->GetJointController()->SetPositionTarget(
-            this->model_->GetJoint("xact_camera::pitch_joint")->GetScopedName(), 
-            -angles::from_degrees(15));
+    this->model_->GetJointController()->SetVelocityPID(
+            this->model_->GetJoint(robotNamespace_ + "::" + "rear_left_wheel_joint")->GetScopedName(), 
+            common::PID(100,0,0));
 
-    gzdbg << "XactCameraPlugin loaded!" << endl;
+    this->model_->GetJointController()->SetVelocityPID(
+            this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_joint")->GetScopedName(), 
+            common::PID(100,0,0));
+
+    this->model_->GetJointController()->SetVelocityPID(
+            this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_joint")->GetScopedName(), 
+            common::PID(100,0,0));
+
+    gzdbg << "AckermannDrive plugin loaded!" << endl;
 }
 
+void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
 
+    ros::spinOnce();
 
 }
+
+} // namespace gazebo
 
