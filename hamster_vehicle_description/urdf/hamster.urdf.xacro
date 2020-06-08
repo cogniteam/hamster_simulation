@@ -13,6 +13,8 @@
 
   <xacro:arg name="agent" default="agent1" />
 
+  <link name="dummy"/>
+
   <link name="base_link">
     <inertial>
       <mass value="1.0" />
@@ -37,7 +39,7 @@
       </geometry>
     </collision>
   </link>
-<!-- 
+
   <link name="imu_link">
     <inertial>
       <mass value="0.01" />
@@ -48,8 +50,14 @@
         <box size="0.01 0.01 0.01" />
       </geometry>
     </visual>
-    </link> -->
-<!-- 
+    </link>
+
+  <joint name="dummy_link_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="dummy" />
+    <child  link="base_link" />
+  </joint>
+
   <joint name="imu_link_joint" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0" />
     <parent link="base_link" />
@@ -68,10 +76,10 @@
     <origin xyz="0.12673 0 0.028" rpy="1.57 0 1.57"/>
     <parent link="base_link"/>
     <child link="camera_link"/>
-  </joint> -->
+  </joint>
 
   <!-- Hokuyo Laser -->
-  <!-- <link name="lidar_link">
+  <link name="lidar_link">
     <collision>
       <geometry>
     <box size="0.05 0.05 0.05"/>
@@ -86,9 +94,9 @@
       <mass value="1e-5" />
       <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
     </inertial>
-  </link> -->
+  </link>
 
-  <!-- <link name="camera_link">
+  <link name="camera_link">
     <collision>
       <geometry>
     <box size="0.01 0.01 0.01"/>
@@ -104,12 +112,12 @@
       <mass value="1e-5" />
       <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
     </inertial>
-  </link> -->
+  </link>
 
   <front_wheel fr="front" lr="right" parent="base_link" origin_x="0.08" origin_y="-0.086" origin_z="-0.01"/>
   <front_wheel fr="front" lr="left" parent="base_link" origin_x="0.08" origin_y="0.086" origin_z="-0.01"/>
-  <!-- <rear_wheel fr="rear" lr="right" parent="base_link" origin_x="-0.085" origin_y="-0.086" origin_z="-0.01"/> -->
-  <!-- <rear_wheel fr="rear" lr="left" parent="base_link" origin_x="-0.085" origin_y="0.086" origin_z="-0.01"/>  -->
+  <rear_wheel fr="rear" lr="right" parent="base_link" origin_x="-0.085" origin_y="-0.086" origin_z="-0.01"/>
+  <rear_wheel fr="rear" lr="left" parent="base_link" origin_x="-0.085" origin_y="0.086" origin_z="-0.01"/> 
 
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
@@ -120,13 +128,13 @@
   </gazebo>
 
             <!-- Skid steer drive controller -->
-  <!-- <gazebo>
+  <gazebo>
     <plugin name="gazebo_ackermann_drive" filename="libgazebo_ackermann_drive.so" >
       <robotNamespace>$(arg agent)</robotNamespace>
     </plugin>
-  </gazebo> -->
+  </gazebo>
 
-  <!-- <gazebo reference="imu_link">
+  <gazebo reference="imu_link">
     <gravity>true</gravity>
     <sensor name="imu_sensor" type="imu">
       <always_on>true</always_on>
@@ -143,9 +151,9 @@
         <frameName>$(arg agent)/imu_link</frameName>
       </plugin>
     </sensor>
-  </gazebo> -->
+  </gazebo>
 
-  <!-- <gazebo reference="lidar_link">
+  <gazebo reference="lidar_link">
     <sensor type="gpu_ray" name="head_hokuyo_sensor">
       <pose>0 0 0 0 0 0</pose>
       <visualize>false</visualize>
@@ -175,9 +183,9 @@
         <frameName>$(arg agent)/lidar_link</frameName>
       </plugin>
     </sensor>
-  </gazebo> -->
+  </gazebo>
 
-  <!-- <gazebo reference="camera_link">
+  <gazebo reference="camera_link">
     <sensor name="depth_camera" type="depth">
       <update_rate>15</update_rate>
       <camera>
@@ -217,6 +225,6 @@
         <hackBaseline>0</hackBaseline>
       </plugin>
     </sensor>
-  </gazebo> -->
+  </gazebo>
 
 </robot>

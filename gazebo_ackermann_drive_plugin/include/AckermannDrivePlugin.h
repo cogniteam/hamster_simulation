@@ -84,6 +84,17 @@ private:
     event::ConnectionPtr updateConnection_;
 
     std::string robotNamespace_;
+
+    common::Time lastUpdate_ = common::Time();
+
+    ackermann_msgs::AckermannDriveStamped currentCommand_;
+
+    common::PID steeringfrontLeftPid_;
+    common::PID steeringfrontRightPid_;
+    common::PID velocityrearLeftPid_;
+    common::PID velocityrearRightPid_;
+    common::PID velocityfrontLeftPid_;
+    common::PID velocityfrontRightPid_;
     
 };
 

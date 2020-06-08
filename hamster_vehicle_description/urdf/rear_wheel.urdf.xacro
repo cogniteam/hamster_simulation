@@ -16,7 +16,7 @@
               izz="${m*r*r/2}" /> 
   </xacro:macro>
   
-  <xacro:macro name="wheel" params="fr lr parent origin_x origin_y origin_z"> <!--fr : front, rear ; lr: left, right -->
+  <xacro:macro name="rear_wheel" params="fr lr parent origin_x origin_y origin_z"> <!--fr : front, rear ; lr: left, right -->
     <link name="${fr}_${lr}_wheel">
       <visual>
         <origin xyz="0 0 0" rpy="1.57 0 0" /> 
@@ -56,8 +56,11 @@
       <child link="${fr}_${lr}_wheel"/>
       <origin xyz="${origin_x} ${origin_y} ${origin_z}" rpy="0 0 0" /> 
       <axis xyz="0 1 0" rpy="0 0 0" />
+      <limit effort="30" velocity="1.2"/>
+      <dynamics friction="0.0"/>
       <!-- <dynamics damping="0.7"/> -->
     </joint>
+
 
     <!-- Transmission is important to link the joints and the controller -->
     <transmission name="${fr}_${lr}_wheel_joint_trans">

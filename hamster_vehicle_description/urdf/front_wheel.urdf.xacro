@@ -16,12 +16,12 @@
               izz="${m*r*r/2}" /> 
   </xacro:macro>
   
-  <xacro:macro name="wheel" params="fr lr parent origin_x origin_y origin_z"> <!--fr : front, rear ; lr: left, right -->
+  <xacro:macro name="front_wheel" params="fr lr parent origin_x origin_y origin_z"> <!--fr : front, rear ; lr: left, right -->
     <link name="${fr}_${lr}_wheel">
       <visual>
         <origin xyz="0 0 0" rpy="1.57 0 0" /> 
         <geometry>
-          <box size="0.01 0.01 0.01" />
+          <mesh filename="package://hamster_vehicle_description/meshes/wheel.dae" />
         </geometry>
       </visual>
       <collision>
@@ -38,17 +38,16 @@
     </link>
 
     <link name="${fr}_${lr}_wheel_steering">
-      <visual>
+      <!-- <visual>
         <origin xyz="0 0 0" rpy="1.57 0 0" /> 
         <geometry>
-          <!-- <cylinder length="${wheel_height}" radius="${wheel_radius}" /> -->
           <mesh filename="package://hamster_vehicle_description/meshes/wheel.dae" />
         </geometry>
-      </visual>
+      </visual> -->
       <collision>
-        <origin xyz="0 0 0" rpy="1.57 0 0" />
+        <origin xyz="0 0.02 0" rpy="1.57 0 0" />
         <geometry>
-          <cylinder length="${wheel_height}" radius="${wheel_radius}" />
+          <cylinder length="0.001" radius="0.001" />
         </geometry>
       </collision>
       <inertial>
@@ -73,14 +72,14 @@
     </gazebo>
 
     <joint name="${fr}_${lr}_wheel_joint" type="continuous">
-      <parent link="${parent}"/>
+      <parent link="${fr}_${lr}_wheel_steering"/>
       <child link="${fr}_${lr}_wheel"/>
-      <origin xyz="${origin_x} ${origin_y} ${origin_z}" rpy="0 0 0" /> 
+      <origin xyz="0 0 0" rpy="0 0 0" /> 
       <axis xyz="0 1 0" rpy="0 0 0" />
       <!-- <dynamics damping="0.7"/> -->
     </joint>
 
-        <joint name="${fr}_${lr}_wheel_steering_joint" type="continuous">
+    <joint name="${fr}_${lr}_wheel_steering_joint" type="continuous">
       <parent link="${parent}"/>
       <child link="${fr}_${lr}_wheel_steering"/>
       <origin xyz="${origin_x} ${origin_y} ${origin_z}" rpy="0 0 0" /> 

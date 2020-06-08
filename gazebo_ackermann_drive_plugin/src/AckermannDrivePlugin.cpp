@@ -36,11 +36,36 @@
 
 #include <AckermannDrivePlugin.h>
 
+
 namespace gazebo{
 
 
-AckermannDrivePlugin::AckermannDrivePlugin() {
+AckermannDrivePlugin::AckermannDrivePlugin() : 
     
+    steeringfrontLeftPid_(0.1, 0.0, 0.01),
+    steeringfrontRightPid_(0.1, 0.0, 0.01),
+
+    velocityrearLeftPid_(100, 0, 0.01),
+    velocityrearRightPid_(100, 0, 0.01),
+    velocityfrontLeftPid_(100, 0, 0.01),
+    velocityfrontRightPid_(100, 0, 0.01) {
+
+    steeringfrontLeftPid_.SetCmdMax(0.122173);
+    steeringfrontRightPid_.SetCmdMax(0.122173);
+    velocityrearLeftPid_.SetCmdMax(100);
+    velocityrearRightPid_.SetCmdMax(100);
+    velocityfrontLeftPid_.SetCmdMax(100);
+    velocityfrontRightPid_.SetCmdMax(100);
+
+    steeringfrontLeftPid_.SetCmdMin(-0.122173);
+    steeringfrontRightPid_.SetCmdMin(-0.122173);
+    velocityrearLeftPid_.SetCmdMin(-100);
+    velocityrearRightPid_.SetCmdMin(-100);
+    velocityfrontLeftPid_.SetCmdMin(-100);
+    velocityfrontRightPid_.SetCmdMin(-100);
+    
+    currentCommand_.drive.speed = 0;
+    currentCommand_.drive.steering_angle = 0;
 }
 
 AckermannDrivePlugin::~AckermannDrivePlugin() {
@@ -50,32 +75,50 @@ AckermannDrivePlugin::~AckermannDrivePlugin() {
 void AckermannDrivePlugin::commandCallback(
     const ackermann_msgs::AckermannDriveStamped::Ptr& cmd) {
 
-    this->model_->GetJoint(robotNamespace_ + "::" + "rear_left_wheel_joint")->
-                SetVelocity(0, cmd->drive.speed);
+    currentCommand_ = *cmd;
 
-    this->model_->GetJoint(robotNamespace_ + "::" + "rear_right_wheel_joint")->
-                SetVelocity(0, cmd->drive.speed);
-
-    this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_joint")->
-                SetVelocity(0, cmd->drive.speed);
-
-    this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_joint")->
-                SetVelocity(0, cmd->drive.speed);
-
-    //
-    // Steering angle constraints. In rads
-    //
+        // this->model_->GetJointController()->SetVelocityTarget(
+        //     this->model_->GetJoint(robotNamespace_ + "::" + "rear_left_wheel_joint")->GetScopedName(),
+        //     currentCommand_.drive.speed);
     
-    auto wheelSteering = fmax(-0.2967, fmin(cmd->drive.steering_angle, 0.2967)); 
+    // this->model_->GetJointController()->SetVelocityTarget(
+    //     this->model_->GetJoint(robotNamespace_ + "::" + "rear_right_wheel_joint")->GetScopedName(),
+        // currentCommand_.drive.speed);
     
-    this->model_->GetJointController()->SetPositionTarget(
-        this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_steering_joint")->GetScopedName(), 
-        cmd->drive.steering_angle);
+        // this->model_->GetJointController()->SetVelocityTarget(
+        //     this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_joint")->GetScopedName(),
+        //     currentCommand_.drive.speed);
+    
+        // this->model_->GetJointController()->SetVelocityTarget(
+        //     this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_joint")->GetScopedName(),
+        //     currentCommand_.drive.speed);
 
-    this->model_->GetJointController()->SetPositionTarget(
-        this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_steering_joint")->GetScopedName(), 
-        cmd->drive.steering_angle);
-            
+                auto wheelSteering = fmax(-0.2967, fmin(currentCommand_.drive.steering_angle, 0.2967)); 
+    
+        this->model_->GetJointController()->SetPositionTarget(
+            this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_steering_joint")->GetScopedName(), 
+            currentCommand_.drive.steering_angle);
+    
+        this->model_->GetJointController()->SetPositionTarget(
+            this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_steering_joint")->GetScopedName(), 
+            currentCommand_.drive.steering_angle);
+
+        this->model_->GetJointController()->SetVelocityTarget(
+            this->model_->GetJoint(robotNamespace_ + "::" + "rear_right_wheel_joint")->GetScopedName(),
+            currentCommand_.drive.speed);
+
+        this->model_->GetJointController()->SetVelocityTarget(
+            this->model_->GetJoint(robotNamespace_ + "::" + "rear_left_wheel_joint")->GetScopedName(),
+            currentCommand_.drive.speed);
+
+        this->model_->GetJointController()->SetVelocityTarget(
+            this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_joint")->GetScopedName(),
+            currentCommand_.drive.speed);
+
+        this->model_->GetJointController()->SetVelocityTarget(
+            this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_joint")->GetScopedName(),
+            currentCommand_.drive.speed);
+ 
 }
 
 void AckermannDrivePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf) {
@@ -94,54 +137,87 @@ void AckermannDrivePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf) {
     this->updateConnection_ = event::Events::ConnectWorldUpdateBegin(
             std::bind(&AckermannDrivePlugin::Update, this, std::placeholders::_1));
 
-    this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_joint")->SetVelocity(0, 0);
-    
-    this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_joint")->SetVelocity(0, 0);
-
-    this->model_->GetJoint(robotNamespace_ + "::" + "rear_right_wheel_joint")->SetVelocity(0, 0);
-
-    this->model_->GetJoint(robotNamespace_ + "::" + "rear_left_wheel_joint")->SetVelocity(0, 0);
-
-    this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_steering_joint")->SetVelocity(0, 0);
-
-    this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_steering_joint")->SetVelocity(0, 0);
-
-    this->model_->GetJoint(robotNamespace_ + "::" + "rear_right_wheel_steering_joint")->SetVelocity(0, 0);
-
-    this->model_->GetJoint(robotNamespace_ + "::" + "rear_left_wheel_steering_joint")->SetVelocity(0, 0);
-
     this->model_->GetJointController()->SetPositionPID(
             this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_steering_joint")->GetScopedName(), 
-            common::PID(100,0,0));
-
-    ROS_INFO("SetPositionPID front_right_wheel_steering_joint");
+            steeringfrontRightPid_);
 
     this->model_->GetJointController()->SetPositionPID(
             this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_steering_joint")->GetScopedName(), 
-            common::PID(100,0,0));
+            steeringfrontLeftPid_);
+
+    // this->model_->GetJoint(robotNamespace_ + "::" + "rear_right_wheel_joint")->SetVelocity(0, 0.0);
 
     this->model_->GetJointController()->SetVelocityPID(
             this->model_->GetJoint(robotNamespace_ + "::" + "rear_right_wheel_joint")->GetScopedName(), 
-            common::PID(100,0,0));
+            velocityrearRightPid_);
 
     this->model_->GetJointController()->SetVelocityPID(
             this->model_->GetJoint(robotNamespace_ + "::" + "rear_left_wheel_joint")->GetScopedName(), 
-            common::PID(100,0,0));
+            velocityrearLeftPid_);
 
     this->model_->GetJointController()->SetVelocityPID(
             this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_joint")->GetScopedName(), 
-            common::PID(100,0,0));
+            velocityfrontRightPid_);
 
     this->model_->GetJointController()->SetVelocityPID(
             this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_joint")->GetScopedName(), 
-            common::PID(100,0,0));
+            velocityfrontLeftPid_);
+
+    // this->model_->GetJointController()->Update();
+
+    // this->model_->GetJointController()->SetPositionTarget(
+    //     this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_steering_joint")->GetScopedName(), 
+    //     0);
+
+    // this->model_->GetJointController()->SetPositionTarget(
+    //     this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_steering_joint")->GetScopedName(), 
+    //     0);
+
+    // this->model_->GetJointController()->SetVelocityTarget(
+    //     this->model_->GetJoint(robotNamespace_ + "::" + "rear_left_wheel_joint")->GetScopedName(),
+    //     0);
+
+    // this->model_->GetJointController()->SetVelocityTarget(
+    //     this->model_->GetJoint(robotNamespace_ + "::" + "rear_right_wheel_joint")->GetScopedName(),
+    //     0);
+
+    // this->model_->GetJointController()->SetVelocityTarget(
+    //     this->model_->GetJoint(robotNamespace_ + "::" + "front_right_wheel_joint")->GetScopedName(),
+    //     0);
+
+    // this->model_->GetJointController()->SetVelocityTarget(
+    //     this->model_->GetJoint(robotNamespace_ + "::" + "front_left_wheel_joint")->GetScopedName(),
+    //     0);
 
     gzdbg << "AckermannDrive plugin loaded!" << endl;
 }
 
 void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
 
-    ros::spinOnce();
+     if (lastUpdate_ == common::Time()) {
+
+        lastUpdate_ = info.simTime;
+
+        return;
+    }
+
+    double timeDeltaSec = (info.simTime - lastUpdate_).Double();
+
+    if (timeDeltaSec > 0.02) {
+
+        //
+        // Steering angle constraints. In rads
+        //
+
+
+
+        this->model_->GetJointController()->Update();
+    
+        ros::spinOnce();
+
+        lastUpdate_ = info.simTime;
+
+    }
 
 }
 
