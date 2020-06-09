@@ -45,15 +45,15 @@
         </geometry>
       </visual> -->
       <collision>
-        <origin xyz="0 0.02 0" rpy="1.57 0 0" />
+        <origin xyz="0 0.02 0" rpy="0 0 0" />
         <geometry>
           <cylinder length="0.001" radius="0.001" />
         </geometry>
       </collision>
       <inertial>
-        <mass value="${wheel_mass}" />
-        <origin xyz="0 0 0" rpy="1.57 0 0" />
-        <cylinder_inertia  m="${wheel_mass}" r="${wheel_radius}" h="${wheel_height}" />
+        <mass value="0.1" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <cylinder_inertia  m="0.1" r="0.01" h="0.01" />
       </inertial>
     </link>
 
@@ -76,7 +76,8 @@
       <child link="${fr}_${lr}_wheel"/>
       <origin xyz="0 0 0" rpy="0 0 0" /> 
       <axis xyz="0 1 0" rpy="0 0 0" />
-      <!-- <dynamics damping="0.7"/> -->
+      <limit effort="1" velocity="1.5"/>
+      <!-- <dynamics friction="0.5" damping="0.7" /> -->
     </joint>
 
     <joint name="${fr}_${lr}_wheel_steering_joint" type="continuous">
@@ -84,11 +85,12 @@
       <child link="${fr}_${lr}_wheel_steering"/>
       <origin xyz="${origin_x} ${origin_y} ${origin_z}" rpy="0 0 0" /> 
       <axis xyz="0 0 1" rpy="0 0 0" />
+      <limit effort="1" velocity="1.5"/>
       <!-- <dynamics damping="0.7"/> -->
     </joint>
 
     <!-- Transmission is important to link the joints and the controller -->
-    <transmission name="${fr}_${lr}_wheel_joint_trans">
+    <!-- <transmission name="${fr}_${lr}_wheel_joint_trans">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="${fr}_${lr}_wheel_joint">
           <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
@@ -97,7 +99,7 @@
         <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         <mechanicalReduction>1</mechanicalReduction>
       </actuator>
-    </transmission>
+    </transmission> -->
    
   </xacro:macro>
 </robot>

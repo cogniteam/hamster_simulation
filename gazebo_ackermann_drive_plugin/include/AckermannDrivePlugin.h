@@ -69,6 +69,7 @@ public:
 
     virtual void Load(physics::ModelPtr model, sdf::ElementPtr sdf);
 
+    // void OnUpdate();
     void Update(const common::UpdateInfo &info);
 
 private:
@@ -91,10 +92,8 @@ private:
 
     common::PID steeringfrontLeftPid_;
     common::PID steeringfrontRightPid_;
-    common::PID velocityrearLeftPid_;
-    common::PID velocityrearRightPid_;
-    common::PID velocityfrontLeftPid_;
-    common::PID velocityfrontRightPid_;
+
+    physics::JointControllerPtr controller_;
     
 };
 

@@ -56,14 +56,13 @@
       <child link="${fr}_${lr}_wheel"/>
       <origin xyz="${origin_x} ${origin_y} ${origin_z}" rpy="0 0 0" /> 
       <axis xyz="0 1 0" rpy="0 0 0" />
-      <limit effort="30" velocity="1.2"/>
-      <dynamics friction="0.0"/>
-      <!-- <dynamics damping="0.7"/> -->
+      <limit effort="1" velocity="1.5"/>
+      <!-- <dynamics friction="0.5" damping="0.7" /> -->
     </joint>
 
 
     <!-- Transmission is important to link the joints and the controller -->
-    <transmission name="${fr}_${lr}_wheel_joint_trans">
+    <!-- <transmission name="${fr}_${lr}_wheel_joint_trans">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="${fr}_${lr}_wheel_joint">
           <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
@@ -72,7 +71,7 @@
         <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         <mechanicalReduction>1</mechanicalReduction>
       </actuator>
-    </transmission>
+    </transmission> -->
    
   </xacro:macro>
 </robot>
