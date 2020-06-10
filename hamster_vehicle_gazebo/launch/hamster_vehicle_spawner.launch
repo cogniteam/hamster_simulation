@@ -1,10 +1,10 @@
 <launch>
- <arg name="agent" default="agent1"/>
+ <arg name="agent" default="agent2"/>
  <arg name="cmd_timeout" default="0.5"/>
  <arg name="use_joystick" default="false" />
  <arg name="joystick_dev" default="/dev/input/js0"/>
  <arg name="sx" default="0"/>
- <arg name="sy" default="0"/>
+ <arg name="sy" default="1.0"/>
 
  <!-- <param name="robot_description" command="$(find xacro)/xacro $(find hamster_vehicle_description)/urdf/hamster.urdf.xacro"/> -->
 

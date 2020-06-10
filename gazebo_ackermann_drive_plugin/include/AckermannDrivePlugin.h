@@ -69,12 +69,13 @@ public:
 
     virtual void Load(physics::ModelPtr model, sdf::ElementPtr sdf);
 
-    // void OnUpdate();
     void Update(const common::UpdateInfo &info);
 
 private:
 
     void commandCallback(const ackermann_msgs::AckermannDriveStamped::Ptr& cmd);
+
+    double setVelocity(double wheelRadius);
 
 private:
 
@@ -94,7 +95,8 @@ private:
     common::PID steeringfrontRightPid_;
 
     physics::JointControllerPtr controller_;
-    
+
+    double wheelRadius_;
 };
 
 GZ_REGISTER_MODEL_PLUGIN(AckermannDrivePlugin)
@@ -102,6 +104,4 @@ GZ_REGISTER_MODEL_PLUGIN(AckermannDrivePlugin)
 }
 
 #endif // GAZEBO_ACKERMANN_DRIVE_PLUGIN_H_
-
-
 

@@ -43,8 +43,8 @@ namespace gazebo{
 AckermannDrivePlugin::AckermannDrivePlugin() : 
     
     steeringfrontLeftPid_(0.1, 0.0, 0.01),
-    steeringfrontRightPid_(0.1, 0.0, 0.01) {
-
+    steeringfrontRightPid_(0.1, 0.0, 0.01), wheelRadius_(0.029)
+    {
     steeringfrontLeftPid_.SetCmdMax(0.122173);
     steeringfrontRightPid_.SetCmdMax(0.122173);
 
@@ -53,6 +53,7 @@ AckermannDrivePlugin::AckermannDrivePlugin() :
     
     currentCommand_.drive.speed = 0;
     currentCommand_.drive.steering_angle = 0;
+
 }
 
 AckermannDrivePlugin::~AckermannDrivePlugin() {
@@ -63,7 +64,6 @@ void AckermannDrivePlugin::commandCallback(
     const ackermann_msgs::AckermannDriveStamped::Ptr& cmd) {
 
     currentCommand_ = *cmd;
-
 }
 
 void AckermannDrivePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf) {
@@ -135,19 +135,19 @@ void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
 
         this->model_->GetJoint(
             robotNamespace_ + "::" + "rear_left_wheel_joint")->SetParam(
-                "vel", 0, (double)currentCommand_.drive.speed);
+                "vel", 0, (double)currentCommand_.drive.speed / wheelRadius_);
 
         this->model_->GetJoint(
             robotNamespace_ + "::" + "rear_right_wheel_joint")->SetParam(
-                "vel", 0, (double)currentCommand_.drive.speed);
+                "vel", 0, (double)currentCommand_.drive.speed / wheelRadius_);
         
         this->model_->GetJoint(
             robotNamespace_ + "::" + "front_left_wheel_joint")->SetParam(
-                "vel", 0, (double)currentCommand_.drive.speed);
+                "vel", 0, (double)currentCommand_.drive.speed / wheelRadius_);
 
         this->model_->GetJoint(
             robotNamespace_ + "::" + "front_right_wheel_joint")->SetParam(
-                "vel", 0, (double)currentCommand_.drive.speed);
+                "vel", 0, (double)currentCommand_.drive.speed / wheelRadius_);
    
         ros::spinOnce();
         

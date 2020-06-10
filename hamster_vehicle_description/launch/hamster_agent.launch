@@ -9,14 +9,19 @@
   <arg name="roll" default="0.0"/>
   <arg name="pitch" default="0.0"/>
   <arg name="yaw" default="0.0"/>
+  <arg name="robot_version" default="V7"/>
   
   <group ns="$(arg agent)">
     <!-- Spawn the vehicle. -->
-    <param name="robot_description" command="$(find xacro)/xacro $(find hamster_vehicle_description)/urdf/hamster.urdf.xacro"/>
+    <param name="robot_description" 
+      command="$(find xacro)/xacro $(find hamster_vehicle_description)/urdf/hamster.urdf.xacro 
+      agent:=$(arg agent) robot_version:=$(arg robot_version)"/>
+    
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
       <param name="publish_frequency" value="500" />
       <param name="tf_prefix" value="$(arg agent)" />
     </node>
+    
     <node name="joint_state_publisher_simulation" pkg="joint_state_publisher" type="joint_state_publisher"/>
   </group>
 
