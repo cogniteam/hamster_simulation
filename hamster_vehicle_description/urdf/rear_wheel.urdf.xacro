@@ -17,13 +17,13 @@
       <visual>
         <origin xyz="0 0 0" rpy="1.57 0 0" /> 
         <geometry>
-          <mesh filename="package://hamster_vehicle_description/meshes/wheel.dae" />
+          <mesh filename="package://hamster_vehicle_description/meshes/hamster_wheel.dae" />
         </geometry>
       </visual>
       <collision>
         <origin xyz="0 0 0" rpy="1.57 0 0" />
         <geometry>
-          <cylinder length="${wheel_height}" radius="${wheel_radius}" />
+          <cylinder length="0.008" radius="${wheel_radius}" />
         </geometry>
       </collision>
       <inertial>
@@ -33,12 +33,24 @@
       </inertial>
     </link>
 
-    <gazebo reference="${fr}_${lr}_wheel">
-      <mu1>70</mu1>
-      <mu2>70</mu2>
+    <!-- <gazebo reference="${fr}_${lr}_wheel">
+      <mu1>100</mu1>
+      <mu2>100</mu2>
       <dampingFactor>0.1</dampingFactor>
       <minDepth>0.01</minDepth>
       <selfCollide>false</selfCollide>
+      <maxContacts>20</maxContacts>
+    </gazebo> -->
+
+    <gazebo reference="${fr}_${lr}_wheel">
+      <mu1>0.7</mu1>
+      <mu2>0.7</mu2>
+      <kp>500000.0</kp>
+      <kd>10.0</kd>
+      <minDepth>0.002</minDepth>
+      <maxVel>0.1</maxVel>
+      <fdir1>1 0 0</fdir1>
+      <!-- <material>Gazebo/FlatBlack</material> -->
       <maxContacts>20</maxContacts>
     </gazebo>
 
@@ -47,7 +59,7 @@
       <child link="${fr}_${lr}_wheel"/>
       <origin xyz="${origin_x} ${origin_y} ${origin_z}" rpy="0 0 0" /> 
       <axis xyz="0 1 0" rpy="0 0 0" />
-      <limit effort="30" velocity="1.5"/>
+      <limit effort="-1" velocity="-1"/>
       <!-- <dynamics friction="0.5" damping="0.7" /> -->
     </joint>
   

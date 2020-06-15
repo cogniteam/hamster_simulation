@@ -16,12 +16,12 @@
 
   <xacro:property name="version" value="$(arg robot_version)"/>
 
-  <link name="dummy"/>
+  <!-- <link name="dummy"/> -->
 
   <link name="base_link">
     <inertial>
-      <mass value="1.0" />
-      <solid_cuboid_inertia w="0.1" h="0.1" d="0.1" m="1.0"/>
+      <mass value="3.0" />
+      <solid_cuboid_inertia w="0.1" h="0.1" d="0.3" m="3.0"/>
     </inertial>
     <visual>
       <geometry>
@@ -47,11 +47,11 @@
     </visual>
     </link>
 
-  <joint name="dummy_link_joint" type="fixed">
+  <!-- <joint name="dummy_link_joint" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0" />
     <parent link="dummy" />
     <child  link="base_link" />
-  </joint>
+  </joint> -->
 
   <joint name="imu_link_joint" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0" />
@@ -147,7 +147,7 @@
       <visualize>true</visualize>
       <topic>__default_topic__</topic>
       <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
-        <topicName>$(arg agent)/imu</topicName>
+        <topicName>imu</topicName>
         <bodyName>imu_link</bodyName>
         <updateRateHZ>10.0</updateRateHZ>
         <gaussianNoise>0.0</gaussianNoise>
@@ -166,7 +166,7 @@
       <ray>
         <scan>
           <horizontal>
-            <samples>720</samples>
+            <samples>360</samples>
             <resolution>1</resolution>
             <min_angle>-3.1415</min_angle>
             <max_angle>3.1415</max_angle>
@@ -184,7 +184,7 @@
         </noise>
       </ray>
       <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_gpu_laser.so">
-        <topicName>$(arg agent)/scan</topicName>
+        <topicName>scan</topicName>
         <frameName>$(arg agent)/lidar_link</frameName>
       </plugin>
     </sensor>
@@ -210,7 +210,7 @@
           <baseline>0.2</baseline>
           <alwaysOn>true</alwaysOn>
           <updateRate>1.0</updateRate>
-          <cameraName>$(arg agent)</cameraName>
+          <cameraName></cameraName>
           <imageTopicName>camera/color/image_raw</imageTopicName>
           <cameraInfoTopicName>camera/color/camera_info</cameraInfoTopicName>
           <depthImageTopicName>camera/depth/image_raw</depthImageTopicName>
@@ -261,7 +261,7 @@
         <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
           <alwaysOn>true</alwaysOn>
           <updateRate>0.0</updateRate>
-          <cameraName>$(arg agent)</cameraName>
+          <cameraName></cameraName>
           <imageTopicName>image_raw</imageTopicName>
           <cameraInfoTopicName>camera_info</cameraInfoTopicName>
           <frameName>$(arg agent)/camera_link</frameName>

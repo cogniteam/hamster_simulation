@@ -5,6 +5,7 @@
  <arg name="joystick_dev" default="/dev/input/js0"/>
  <arg name="sx" default="0"/>
  <arg name="sy" default="1.0"/>
+ <arg name="robot_version" default="V7"/>
 
  <!-- <param name="robot_description" command="$(find xacro)/xacro $(find hamster_vehicle_description)/urdf/hamster.urdf.xacro"/> -->
 
@@ -14,6 +15,7 @@
     <arg name="x" value="$(arg sx)"/>
     <arg name="y" value="$(arg sy)"/>
     <arg name="cmd_timeout" value="$(arg cmd_timeout)"/>
+    <arg name="robot_version" default="$(arg robot_version)"/>
   </include>
 
   <group if="$(arg use_joystick)">

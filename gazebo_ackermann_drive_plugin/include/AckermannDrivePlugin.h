@@ -39,18 +39,23 @@
 
 
 #include <ros/ros.h>
+#include <tf/tf.h>
+#include <tf/transform_broadcaster.h>
 
 
 #include <cmath>
+#include <ignition/math/Vector3.hh>
 
 
 #include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
 #include <gazebo/physics/Joint.hh>
 #include <gazebo/physics/JointController.hh>
 #include <gazebo/physics/Model.hh>
 #include <gazebo/physics/PhysicsTypes.hh>
 
 #include <ackermann_msgs/AckermannDriveStamped.h>
+#include <nav_msgs/Odometry.h>
 
 
 namespace gazebo{
@@ -77,9 +82,17 @@ private:
 
     double setVelocity(double wheelRadius);
 
+    inline double rightWheelSteering(double baseAngle);
+
+    inline double leftWheelSteering(double baseAngle);
+
+    void publishOdometry();
+
 private:
 
     ros::Subscriber cmdSubscriber_;
+
+    ros::Publisher odomPublisher_;
     
     physics::ModelPtr model_;
 
@@ -97,6 +110,9 @@ private:
     physics::JointControllerPtr controller_;
 
     double wheelRadius_;
+
+    tf::TransformBroadcaster tfBroadcaster_;
+
 };
 
 GZ_REGISTER_MODEL_PLUGIN(AckermannDrivePlugin)
