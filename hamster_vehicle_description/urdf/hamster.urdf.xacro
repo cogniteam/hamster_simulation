@@ -87,7 +87,7 @@
     </collision>
     <visual>
       <geometry>
-        <mesh filename="package://hamster_vehicle_description/meshes/rp_lidar_head.dae" />
+        <mesh filename="package://hamster_vehicle_description/meshes/rp_lidar_head.stl" />
       </geometry>
     </visual>
     <inertial>
@@ -136,6 +136,18 @@
   <gazebo>
     <plugin name="gazebo_ackermann_drive" filename="libgazebo_ackermann_drive.so" >
       <robotNamespace>$(arg agent)</robotNamespace>
+      <wheelRadius>0.029</wheelRadius>
+      <frontLeftWheelJoint>front_left_wheel_joint</frontLeftWheelJoint>
+      <frontRightWheelJoint>front_right_wheel_joint</frontRightWheelJoint>
+      <reartLeftWheelJoint>rear_left_wheel_joint</reartLeftWheelJoint>
+      <rearRightWheelJoint>rear_right_wheel_joint</rearRightWheelJoint>
+      <frontRightWheelSteeringJoint>front_right_wheel_steering_joint</frontRightWheelSteeringJoint>
+      <frontLeftWheelSteeringJoint>front_left_wheel_steering_joint</frontLeftWheelSteeringJoint>
+      <torque>0.01</torque>
+      <baseFrame>$(arg agent)/base_link</baseFrame>
+      <odomFrame>$(arg agent)/odom/<odomFrame>
+      <odomTopic>odom</odomTopic>
+      <driveTopic>ackermann_cmd</driveTopic>
     </plugin>
   </gazebo>
 
