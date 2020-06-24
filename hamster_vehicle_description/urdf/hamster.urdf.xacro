@@ -61,7 +61,7 @@
 
   <joint name="hokuyo_joint" type="fixed">
     <axis xyz="0 1 0" />
-    <origin xyz="-0.05 0 0.085" rpy="0 0 0"/>
+    <origin xyz="-0.05 0 0.06" rpy="0 0 0"/>
     <parent link="base_link"/>
     <child link="lidar_link"/>
   </joint>
@@ -87,7 +87,7 @@
     </collision>
     <visual>
       <geometry>
-        <mesh filename="package://hamster_vehicle_description/meshes/rp_lidar_head.stl" />
+        <mesh filename="package://hamster_vehicle_description/meshes/A2_lidar.dae" />
       </geometry>
     </visual>
     <inertial>
@@ -134,9 +134,12 @@
 
             <!-- Skid steer drive controller -->
   <gazebo>
-    <plugin name="gazebo_ackermann_drive" filename="libgazebo_ackermann_drive.so" >
+    <plugin name="gazebo_ackermann_drive" filename="libgazebo_ackermann_drive.so">
       <robotNamespace>$(arg agent)</robotNamespace>
+      <robotBaseLink>base_link</robotBaseLink> 
       <wheelRadius>0.029</wheelRadius>
+      <lateralSeparation>0.17</lateralSeparation>
+      <longitudalSeparation>0.166</longitudalSeparation>
       <frontLeftWheelJoint>front_left_wheel_joint</frontLeftWheelJoint>
       <frontRightWheelJoint>front_right_wheel_joint</frontRightWheelJoint>
       <reartLeftWheelJoint>rear_left_wheel_joint</reartLeftWheelJoint>
@@ -144,8 +147,8 @@
       <frontRightWheelSteeringJoint>front_right_wheel_steering_joint</frontRightWheelSteeringJoint>
       <frontLeftWheelSteeringJoint>front_left_wheel_steering_joint</frontLeftWheelSteeringJoint>
       <torque>0.01</torque>
-      <baseFrame>$(arg agent)/base_link</baseFrame>
-      <odomFrame>$(arg agent)/odom/<odomFrame>
+      <baseFrame>base_link</baseFrame>
+      <odomFrame>odom</odomFrame>
       <odomTopic>odom</odomTopic>
       <driveTopic>ackermann_cmd</driveTopic>
     </plugin>
@@ -200,6 +203,7 @@
         <frameName>$(arg agent)/lidar_link</frameName>
       </plugin>
     </sensor>
+    <material>Gazebo/DarkGrey</material>
   </gazebo>
 
   <xacro:if value="${version == 'V7'}">

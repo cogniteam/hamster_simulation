@@ -174,6 +174,9 @@ private:
 
     double wheelRadius_;
 
+    double lateralWheelSeparation_;
+    double longitudalWheelSeparation_;
+
     std::string robotNamespace_;
 
     std::string frontLeftWheelJoint_;
@@ -189,6 +192,8 @@ private:
 
     std::string driveTopic_;
     std::string odomTopic_;
+
+    std::string baseLink_;
 
     double torque_;
 
