@@ -10,6 +10,8 @@
 #define GAZEBO_ACKERMANN_DRIVE_PLUGIN_H_
 
 
+#include <vector>
+
 #include <ros/ros.h>
 #include <tf/tf.h>
 #include <tf/transform_broadcaster.h>
@@ -179,10 +181,7 @@ private:
 
     std::string robotNamespace_;
 
-    std::string frontLeftWheelJoint_;
-    std::string frontRightWheelJoint_;
-    std::string rearLeftWheelJoint_;
-    std::string rearRightWheelJoint_;
+    std::vector<string> wheelJoints_; 
 
     std::string frontRightWheelSteeringJoint_;
     std::string frontLeftWheelSteeringJoint_;

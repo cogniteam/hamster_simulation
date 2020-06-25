@@ -49,13 +49,6 @@ void AckermannDrivePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf) {
   
     this->model_ = model;
 
-    ROS_INFO("frontRightWheelSteeringJoint_: %s", frontRightWheelSteeringJoint_.c_str());
-    ROS_INFO("frontLeftWheelSteeringJoint_: %s", frontLeftWheelSteeringJoint_.c_str());
-    ROS_INFO("rearLeftWheelJoint_: %s", rearLeftWheelJoint_.c_str());
-    ROS_INFO("rearRightWheelJoint_: %s", rearRightWheelJoint_.c_str());
-    ROS_INFO("frontLeftWheelJoint_: %s", frontLeftWheelJoint_.c_str());
-    ROS_INFO("frontRightWheelJoint_: %s", frontRightWheelJoint_.c_str());
-
     this->model_->GetJointController()->SetPositionPID(
         this->model_->GetJoint(frontRightWheelSteeringJoint_)->GetScopedName(), 
                 steeringfrontRightPid_);
@@ -70,22 +63,12 @@ void AckermannDrivePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf) {
     this->model_->GetJointController()->SetPositionTarget(
         frontLeftWheelSteeringJoint_, 0.0);
 
-    this->model_->GetJoint(rearLeftWheelJoint_)->SetParam(
-        "fmax", 0, (double)torque_);
-    this->model_->GetJoint(rearLeftWheelJoint_)->SetParam(
-        "vel", 0, 0.0);
-    this->model_->GetJoint(rearRightWheelJoint_)->SetParam(
-        "fmax", 0, (double)torque_);
-    this->model_->GetJoint(rearRightWheelJoint_)->SetParam(
-        "vel", 0, 0.0);
-    this->model_->GetJoint(frontLeftWheelJoint_)->SetParam(
-        "fmax", 0, (double)torque_);
-    this->model_->GetJoint(frontLeftWheelJoint_)->SetParam(
-        "vel", 0, 0.0);
-    this->model_->GetJoint(frontRightWheelJoint_)->SetParam(
-        "fmax", 0,(double)torque_);
-    this->model_->GetJoint(frontRightWheelJoint_)->SetParam(
-        "vel", 0, 0.0);
+    for (auto&& wheelJoint : wheelJoints_) {
+        this->model_->GetJoint(wheelJoint)->SetParam(
+            "fmax", 0, (double)torque_);
+        this->model_->GetJoint(wheelJoint)->SetParam(
+            "vel", 0, 0.0);
+    }
 
     this->updateConnection_ = event::Events::ConnectWorldUpdateBegin(
         std::bind(&AckermannDrivePlugin::Update, this, std::placeholders::_1));
@@ -116,31 +99,21 @@ void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
         this->model_->GetJointController()->SetPositionTarget(
             this->model_->GetJoint(frontLeftWheelSteeringJoint_)->GetScopedName(), 
                     leftWheelSteering((double)steering));
+                    
 
-        this->model_->GetJoint(rearRightWheelJoint_)->SetParam(
-            "fmax", 0, (double)torque_);
-        this->model_->GetJoint(rearLeftWheelJoint_)->SetParam(
-            "fmax", 0, (double)torque_);
-        this->model_->GetJoint(frontRightWheelJoint_)->SetParam(
-            "fmax", 0, (double)torque_);
-        this->model_->GetJoint(frontLeftWheelJoint_)->SetParam(
-            "fmax", 0, (double)torque_);
+        for (auto&& wheelJoint : wheelJoints_) {
 
-        this->model_->GetJoint(
-            rearLeftWheelJoint_)->SetParam("vel", 0,
-                (double)currentCommand_.drive.speed / wheelRadius_);
+            if (currentCommand_.drive.speed == 0) {
+            this->model_->GetJoint(wheelJoint)->SetParam(
+                "fmax", 0, (double)torque_ * 10);
+            } else {
+                this->model_->GetJoint(wheelJoint)->SetParam(
+                    "fmax", 0, (double)torque_);
+            }
 
-        this->model_->GetJoint(
-            rearRightWheelJoint_)->SetParam("vel", 0, 
+            this->model_->GetJoint(wheelJoint)->SetParam("vel", 0,
                 (double)currentCommand_.drive.speed / wheelRadius_);
-        
-        this->model_->GetJoint(
-            frontLeftWheelJoint_)->SetParam("vel", 0, 
-                (double)currentCommand_.drive.speed / wheelRadius_);
-
-        this->model_->GetJoint(
-            frontRightWheelJoint_)->SetParam("vel", 0, 
-                (double)currentCommand_.drive.speed / wheelRadius_);
+        }
             
         publishOdometry();
         ros::spinOnce();
@@ -165,7 +138,6 @@ void AckermannDrivePlugin::publishOdometry() {
     auto position = this->model_->GetLink(baseLink_)->WorldPose().Pos();
     auto rotation = this->model_->GetLink(baseLink_)->WorldPose().Rot();
 
-
     tf::Transform transform;
 
     transform.setOrigin(tf::Vector3(position.X(), position.Y(), position.Z()));
@@ -175,24 +147,43 @@ void AckermannDrivePlugin::publishOdometry() {
     tfBroadcaster_.sendTransform(tf::StampedTransform(
         transform, ros::Time::now(), odomFrame_, baseFrame_));
 
-    // nav_msgs::Odometry odomMgs;
+    nav_msgs::Odometry odomMsg;
 
-    // odomMgs.header.frame_id = odomFrame_;
-    // odomMgs.header.stamp = ros::Time::now();
+    odomMsg.header.frame_id = odomFrame_;
+    odomMsg.header.stamp = ros::Time::now();
+
+    odomMsg.pose.pose.position.x = position.X();
+    odomMsg.pose.pose.position.y = position.Y();
+    odomMsg.pose.pose.position.z = position.Z();
+
+    tf::quaternionTFToMsg(tf::Quaternion(rotation.X(), rotation.Y(),
+            rotation.Z(), rotation.W()), odomMsg.pose.pose.orientation);
+
+    odomMsg.twist.twist.linear.x = this->model_->GetLink(baseLink_)->WorldLinearVel().X();
+    odomMsg.twist.twist.linear.y = this->model_->GetLink(baseLink_)->WorldLinearVel().Y();
+    odomMsg.twist.twist.linear.z = this->model_->GetLink(baseLink_)->WorldLinearVel().Z();
+
+    odomMsg.twist.twist.angular.x = this->model_->GetLink(baseLink_)->WorldAngularVel().X();
+    odomMsg.twist.twist.angular.y = this->model_->GetLink(baseLink_)->WorldAngularVel().Y();
+    odomMsg.twist.twist.angular.z = this->model_->GetLink(baseLink_)->WorldAngularVel().Z();
+
+    odomPublisher_.publish(odomMsg);
+
 }
 
 void AckermannDrivePlugin::initParams(sdf::ElementPtr sdf) {
 
     robotNamespace_ = getParam<std::string>("robotNamespace", "", sdf);
     wheelRadius_ = getParam<double>("wheelRadius", 0.029, sdf);
-    frontLeftWheelJoint_ = getParam<std::string>(
-        "frontLeftWheelJoint", "front_left_wheel_joint", sdf);
-    frontRightWheelJoint_ = getParam<std::string>(
-        "frontRightWheelJoint", "front_right_wheel_joint", sdf);
-    rearLeftWheelJoint_ = getParam<std::string>(
-        "reartLeftWheelJoint", "rear_left_wheel_joint", sdf);
-    rearRightWheelJoint_ = getParam<std::string>(
-        "rearRightWheelJoint", "rear_right_wheel_joint", sdf);
+
+    wheelJoints_.push_back(getParam<std::string>(
+        "frontLeftWheelJoint", "front_left_wheel_joint", sdf));
+    wheelJoints_.push_back(getParam<std::string>(
+        "frontRightWheelJoint", "front_right_wheel_joint", sdf));
+    wheelJoints_.push_back(getParam<std::string>(
+        "reartLeftWheelJoint", "rear_left_wheel_joint", sdf));
+    wheelJoints_.push_back(getParam<std::string>(
+        "rearRightWheelJoint", "rear_right_wheel_joint", sdf));
 
     frontRightWheelSteeringJoint_ = getParam<std::string>(
         "frontRightWheelSteeringJoint", "front_right_wheel_steering_joint", sdf);
@@ -212,10 +203,10 @@ void AckermannDrivePlugin::initParams(sdf::ElementPtr sdf) {
     baseLink_ = getParam<std::string>("robotBaseLink", "base_link", sdf);
 
     if (!robotNamespace_.empty()) {
-        frontLeftWheelJoint_ = robotNamespace_ + "::" + frontLeftWheelJoint_;
-        frontRightWheelJoint_ = robotNamespace_ + "::" + frontRightWheelJoint_;
-        rearLeftWheelJoint_ = robotNamespace_ + "::" + rearLeftWheelJoint_;
-        rearRightWheelJoint_ = robotNamespace_ + "::" + rearRightWheelJoint_;
+
+        for (auto&& wheelJoint : wheelJoints_) {
+            wheelJoint = robotNamespace_ + "::" + wheelJoint;
+        }
 
         frontRightWheelSteeringJoint_ =
                 robotNamespace_ + "::" + frontRightWheelSteeringJoint_; 
