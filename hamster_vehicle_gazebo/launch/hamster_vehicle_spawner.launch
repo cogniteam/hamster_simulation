@@ -22,7 +22,7 @@
     <include file="$(find hamster_vehicle_gazebo)/launch/joystick.launch">
       <arg name="agent" default="$(arg agent)"/>
       <arg name="scale_linear" default="2"/>
-      <arg name="scale_angular" default="4"/>
+      <arg name="scale_angular" default="0.5"/>
       <arg name="dev" value="$(arg joystick_dev)"/>
     </include>
   </group>

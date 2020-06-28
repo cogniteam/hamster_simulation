@@ -29,6 +29,8 @@
 #include <ackermann_msgs/AckermannDriveStamped.h>
 #include <nav_msgs/Odometry.h>
 
+#include <random_numbers/random_numbers.h>
+
 
 namespace gazebo{
 
@@ -105,15 +107,15 @@ private:
     void publishOdometry();
 
     /**
-     * @brief  
+     * @brief Get parameters from urdf
      */
+
     template<typename T>
     T getParam(const std::string& paramName, T initParam, sdf::ElementPtr sdf) {
         auto param = initParam;
         if (sdf->HasElement(paramName)) {
             param = sdf->GetElement(paramName)->Get<T>();
         }
-        gzerr << paramName << "is set to" << param << endl;
         return param;
     }
     
@@ -171,6 +173,12 @@ private:
     common::PID steeringfrontRightPid_;
 
     /**
+     * @brief noise generator 
+     */
+
+    random_numbers::RandomNumberGenerator odomNoise_;
+
+    /**
      * @brief Gazebo plugin parameters
      */
 
@@ -195,6 +203,13 @@ private:
     std::string baseLink_;
 
     double torque_;
+
+    /**
+     * @brief Gaussian odometry noise params
+     */
+
+    double mean_;
+    double stddev_;
 
 };
 

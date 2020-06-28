@@ -100,7 +100,6 @@ void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
             this->model_->GetJoint(frontLeftWheelSteeringJoint_)->GetScopedName(), 
                     leftWheelSteering((double)steering));
                     
-
         for (auto&& wheelJoint : wheelJoints_) {
 
             if (currentCommand_.drive.speed == 0) {
@@ -140,9 +139,19 @@ void AckermannDrivePlugin::publishOdometry() {
 
     tf::Transform transform;
 
-    transform.setOrigin(tf::Vector3(position.X(), position.Y(), position.Z()));
-    transform.setRotation(tf::Quaternion(
-        rotation.X(), rotation.Y(), rotation.Z(), rotation.W()));
+    auto xPose = (currentCommand_.drive.speed == 0) ?
+        position.X() : position.X() + odomNoise_.gaussian(mean_, stddev_);  
+
+    auto yPose = (currentCommand_.drive.speed == 0) ?
+        position.Y() : position.Y() + odomNoise_.gaussian(mean_, stddev_);
+
+    double roll, pitch, yaw;
+    tf::Quaternion q(rotation.X(), rotation.Y(), rotation.Z(), rotation.W());
+    tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
+    q.setRPY(roll, pitch, yaw + odomNoise_.gaussian(mean_, stddev_));
+
+    transform.setOrigin(tf::Vector3(xPose, yPose, position.Z()));
+    transform.setRotation(q);
 
     tfBroadcaster_.sendTransform(tf::StampedTransform(
         transform, ros::Time::now(), odomFrame_, baseFrame_));
@@ -152,12 +161,11 @@ void AckermannDrivePlugin::publishOdometry() {
     odomMsg.header.frame_id = odomFrame_;
     odomMsg.header.stamp = ros::Time::now();
 
-    odomMsg.pose.pose.position.x = position.X();
-    odomMsg.pose.pose.position.y = position.Y();
+    odomMsg.pose.pose.position.x = xPose;
+    odomMsg.pose.pose.position.y = yPose;
     odomMsg.pose.pose.position.z = position.Z();
 
-    tf::quaternionTFToMsg(tf::Quaternion(rotation.X(), rotation.Y(),
-            rotation.Z(), rotation.W()), odomMsg.pose.pose.orientation);
+    tf::quaternionTFToMsg(q, odomMsg.pose.pose.orientation);
 
     odomMsg.twist.twist.linear.x = this->model_->GetLink(baseLink_)->WorldLinearVel().X();
     odomMsg.twist.twist.linear.y = this->model_->GetLink(baseLink_)->WorldLinearVel().Y();
@@ -193,6 +201,8 @@ void AckermannDrivePlugin::initParams(sdf::ElementPtr sdf) {
     torque_ = getParam<double>("torque", 0.01, sdf);
     lateralWheelSeparation_ = getParam<double>("lateralSeparation", 0.17, sdf);
     longitudalWheelSeparation_ = getParam<double>("longitudalSeparation", 0.166, sdf);
+    mean_ = getParam<double>("odomNoiseMean", 0.0, sdf);
+    stddev_ = getParam<double>("odomNoiseStddev", 0.01, sdf);
 
     baseFrame_ = getParam<std::string>("baseFrame", "base_link", sdf);
     odomFrame_ = getParam<std::string>("odomFrame", "odom", sdf);
@@ -223,4 +233,5 @@ void AckermannDrivePlugin::initParams(sdf::ElementPtr sdf) {
 }
 
 } // namespace gazebo
+
 

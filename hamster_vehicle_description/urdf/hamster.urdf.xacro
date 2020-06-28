@@ -151,6 +151,9 @@
       <odomFrame>odom</odomFrame>
       <odomTopic>odom</odomTopic>
       <driveTopic>ackermann_cmd</driveTopic>
+      <odomNoiseMean>0.0</odomNoiseMean>
+      <odomNoiseStddev>0.01</odomNoiseStddev>
+
     </plugin>
   </gazebo>
 
