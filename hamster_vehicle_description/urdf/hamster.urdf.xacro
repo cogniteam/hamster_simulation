@@ -132,14 +132,13 @@
     </plugin>
   </gazebo>
 
-            <!-- Skid steer drive controller -->
   <gazebo>
     <plugin name="gazebo_ackermann_drive" filename="libgazebo_ackermann_drive.so">
       <robotNamespace>$(arg agent)</robotNamespace>
       <robotBaseLink>base_link</robotBaseLink> 
       <wheelRadius>0.029</wheelRadius>
-      <lateralSeparation>0.17</lateralSeparation>
-      <longitudalSeparation>0.166</longitudalSeparation>
+      <wheelSeparation>0.17</wheelSeparation>
+      <wheelBase>0.166</wheelBase>
       <frontLeftWheelJoint>front_left_wheel_joint</frontLeftWheelJoint>
       <frontRightWheelJoint>front_right_wheel_joint</frontRightWheelJoint>
       <reartLeftWheelJoint>rear_left_wheel_joint</reartLeftWheelJoint>
@@ -153,7 +152,8 @@
       <driveTopic>ackermann_cmd</driveTopic>
       <odomNoiseMean>0.0</odomNoiseMean>
       <odomNoiseStddev>0.01</odomNoiseStddev>
-
+      <minSpeed>-1.2</minSpeed>
+      <maxSpeed>1.2</maxSpeed>
     </plugin>
   </gazebo>
 

@@ -118,7 +118,7 @@ private:
         }
         return param;
     }
-    
+
 private:
 
     /**
@@ -182,10 +182,10 @@ private:
      * @brief Gazebo plugin parameters
      */
 
-    double wheelRadius_;
+    double wheelRadius_ = 0.0;
 
-    double lateralWheelSeparation_;
-    double longitudalWheelSeparation_;
+    double wheelSeparartion_ = 0.0;
+    double wheelBase_ = 0.0;
 
     std::string robotNamespace_;
 
@@ -202,15 +202,23 @@ private:
 
     std::string baseLink_;
 
-    double torque_;
+    double torque_ = 0.0;
 
     /**
      * @brief Gaussian odometry noise params
      */
 
-    double mean_;
-    double stddev_;
+    double mean_ = 0.0;
+    double stddev_ = 0.0;
 
+    double xPoseAccumulateError_;
+    double yPoseAccumulateError_;
+    double yawAccumulateError_;
+
+    ros::Time previousTime_;
+
+    double minSpeed_;
+    double maxSpeed_;
 };
 
 GZ_REGISTER_MODEL_PLUGIN(AckermannDrivePlugin)

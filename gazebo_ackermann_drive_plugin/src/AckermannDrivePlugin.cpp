@@ -34,6 +34,19 @@ void AckermannDrivePlugin::commandCallback(
     const ackermann_msgs::AckermannDriveStamped::Ptr& cmd) {
 
     currentCommand_ = *cmd;
+
+    //
+    // Speed constraints
+    //
+
+    if (currentCommand_.drive.speed < minSpeed_) {
+        currentCommand_.drive.speed = minSpeed_;
+    }
+
+    if (currentCommand_.drive.speed > maxSpeed_) {
+        currentCommand_.drive.speed = maxSpeed_;
+    }
+
 }
 
 void AckermannDrivePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf) {
@@ -87,7 +100,7 @@ void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
     if (timeDeltaSec > 0.02) {
 
         //
-        // Steering constraince
+        // Steering constraints
         //
 
         auto steering = fmax(-0.23, fmin(0.23, currentCommand_.drive.steering_angle));
@@ -121,15 +134,15 @@ void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
 }
 
 inline double AckermannDrivePlugin::rightWheelSteering(double baseAngle) {
-    return atan(2 * lateralWheelSeparation_ * sin(baseAngle)/ (
-            2 * lateralWheelSeparation_ * cos(baseAngle) - 
-                longitudalWheelSeparation_ * sin(baseAngle)));
+    return atan(2 * wheelSeparartion_ * sin(baseAngle)/ (
+            2 * wheelSeparartion_ * cos(baseAngle) - 
+                wheelBase_ * sin(baseAngle)));
 }
 
 inline double AckermannDrivePlugin::leftWheelSteering(double baseAngle) {
-    return atan(2 * lateralWheelSeparation_ * sin(baseAngle)/ (
-            2 * lateralWheelSeparation_ * cos(baseAngle) + 
-                longitudalWheelSeparation_ * sin(baseAngle)));
+    return atan(2 * wheelSeparartion_ * sin(baseAngle)/ (
+            2 * wheelSeparartion_ * cos(baseAngle) + 
+                wheelBase_ * sin(baseAngle)));
 }
 
 void AckermannDrivePlugin::publishOdometry() {
@@ -137,24 +150,43 @@ void AckermannDrivePlugin::publishOdometry() {
     auto position = this->model_->GetLink(baseLink_)->WorldPose().Pos();
     auto rotation = this->model_->GetLink(baseLink_)->WorldPose().Rot();
 
-    tf::Transform transform;
+    //
+    // Odometry noise
+    //
 
-    auto xPose = (currentCommand_.drive.speed == 0) ?
-        position.X() : position.X() + odomNoise_.gaussian(mean_, stddev_);  
+    if (currentCommand_.drive.speed !=0) {
+        xPoseAccumulateError_ += odomNoise_.gaussian(
+            mean_, stddev_) * fabs(this->model_->GetLink(baseLink_)->WorldLinearVel().X());
+        yPoseAccumulateError_ += odomNoise_.gaussian(
+            mean_, stddev_) * fabs(this->model_->GetLink(baseLink_)->WorldLinearVel().Y());
+    }
 
-    auto yPose = (currentCommand_.drive.speed == 0) ?
-        position.Y() : position.Y() + odomNoise_.gaussian(mean_, stddev_);
+    auto xPose = position.X() + xPoseAccumulateError_;
+    auto yPose = position.Y() + yPoseAccumulateError_;
+
+    yawAccumulateError_ += odomNoise_.gaussian(
+        mean_, stddev_) * fabs(this->model_->GetLink(baseLink_)->WorldAngularVel().Z());
+
+    //
+    // Tf publishing
+    //
 
     double roll, pitch, yaw;
     tf::Quaternion q(rotation.X(), rotation.Y(), rotation.Z(), rotation.W());
     tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
-    q.setRPY(roll, pitch, yaw + odomNoise_.gaussian(mean_, stddev_));
+    q.setRPY(roll, pitch, yaw + yawAccumulateError_);
 
+    tf::Transform transform;
     transform.setOrigin(tf::Vector3(xPose, yPose, position.Z()));
+
     transform.setRotation(q);
 
     tfBroadcaster_.sendTransform(tf::StampedTransform(
         transform, ros::Time::now(), odomFrame_, baseFrame_));
+
+    //
+    // Odom ros message publishing
+    //
 
     nav_msgs::Odometry odomMsg;
 
@@ -199,10 +231,12 @@ void AckermannDrivePlugin::initParams(sdf::ElementPtr sdf) {
         "frontLeftWheelSteeringJoint", "front_left_wheel_steering_joint", sdf);
 
     torque_ = getParam<double>("torque", 0.01, sdf);
-    lateralWheelSeparation_ = getParam<double>("lateralSeparation", 0.17, sdf);
-    longitudalWheelSeparation_ = getParam<double>("longitudalSeparation", 0.166, sdf);
+    wheelSeparartion_ = getParam<double>("wheelSeparation", 0.17, sdf);
+    wheelBase_ = getParam<double>("wheelBase", 0.166, sdf);
     mean_ = getParam<double>("odomNoiseMean", 0.0, sdf);
     stddev_ = getParam<double>("odomNoiseStddev", 0.01, sdf);
+    minSpeed_ = getParam<double> ("minSpeed", -1.2, sdf);
+    maxSpeed_ = getParam<double> ("maxSpeed", 1.2, sdf);
 
     baseFrame_ = getParam<std::string>("baseFrame", "base_link", sdf);
     odomFrame_ = getParam<std::string>("odomFrame", "odom", sdf);
