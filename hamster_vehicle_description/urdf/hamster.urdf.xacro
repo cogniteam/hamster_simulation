@@ -203,7 +203,7 @@
       </ray>
       <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_gpu_laser.so">
         <topicName>scan</topicName>
-        <frameName>$(arg agent)/lidar_link</frameName>
+        <frameName>lidar_link</frameName>
       </plugin>
     </sensor>
     <material>Gazebo/DarkGrey</material>
