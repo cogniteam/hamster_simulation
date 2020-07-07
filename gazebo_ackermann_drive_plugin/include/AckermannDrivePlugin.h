@@ -202,7 +202,7 @@ private:
 
     std::string baseLink_;
 
-    double torque_ = 0.0;
+    double torque_;
 
     /**
      * @brief Gaussian odometry noise params
@@ -219,6 +219,11 @@ private:
 
     double minSpeed_;
     double maxSpeed_;
+
+    bool hamsterRotationPattern_;
+
+    double linearZeroCounter_ = 0;
+    double previousVelocity_;
 };
 
 GZ_REGISTER_MODEL_PLUGIN(AckermannDrivePlugin)

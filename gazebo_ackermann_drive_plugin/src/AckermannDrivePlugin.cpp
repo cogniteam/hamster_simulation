@@ -13,7 +13,9 @@ namespace gazebo{
 AckermannDrivePlugin::AckermannDrivePlugin() : 
     
     steeringfrontLeftPid_(10, 0.0, 0.01),
-    steeringfrontRightPid_(10, 0.0, 0.01)
+    steeringfrontRightPid_(10, 0.0, 0.01),
+    previousVelocity_(0),
+    linearZeroCounter_(0)
     {
     steeringfrontLeftPid_.SetCmdMax(10);
     steeringfrontRightPid_.SetCmdMax(10);
@@ -103,7 +105,48 @@ void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
         // Steering constraints
         //
 
-        auto steering = fmax(-0.23, fmin(0.23, currentCommand_.drive.steering_angle));
+        auto steering = fmax(-0.296706, fmin(0.296706, currentCommand_.drive.steering_angle));
+
+        auto linearVelocity = (double)currentCommand_.drive.speed / wheelRadius_;
+
+        // ROS_INFO("linear velocity %f", linearVelocity);
+        
+        bool isRotationOnly = currentCommand_.drive.speed == 0 &&
+            currentCommand_.drive.steering_angle != 0;
+
+        bool stop = currentCommand_.drive.speed == 0 && 
+            currentCommand_.drive.steering_angle == 0;
+
+        if (isRotationOnly) {
+            linearZeroCounter_ += 0.04;
+            linearVelocity = maxSpeed_/wheelRadius_ * 0.1 * sin(linearZeroCounter_);
+            linearVelocity *= 0.99;
+
+            ROS_INFO("linear velocity %f", linearVelocity);
+
+            if (linearVelocity < 0) {
+                steering *= -1;
+            }
+
+            // if (previousVelocity_ > linearVelocity) {
+            //     linearZeroCounter_ = 0;
+            // }
+            
+            // previousVelocity_ = linearVelocity;
+        }
+
+        for (auto&& wheelJoint : wheelJoints_) {
+
+            if (stop) {
+            this->model_->GetJoint(wheelJoint)->SetParam(
+                "fmax", 0, (double)torque_ * 100);
+            } else {
+                this->model_->GetJoint(wheelJoint)->SetParam(
+                    "fmax", 0, (double)torque_);
+            }
+
+            this->model_->GetJoint(wheelJoint)->SetParam("vel", 0, linearVelocity);
+        }
 
         this->model_->GetJointController()->SetPositionTarget(
             this->model_->GetJoint(frontRightWheelSteeringJoint_)->GetScopedName(), 
@@ -112,21 +155,7 @@ void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
         this->model_->GetJointController()->SetPositionTarget(
             this->model_->GetJoint(frontLeftWheelSteeringJoint_)->GetScopedName(), 
                     leftWheelSteering((double)steering));
-                    
-        for (auto&& wheelJoint : wheelJoints_) {
 
-            if (currentCommand_.drive.speed == 0) {
-            this->model_->GetJoint(wheelJoint)->SetParam(
-                "fmax", 0, (double)torque_ * 10);
-            } else {
-                this->model_->GetJoint(wheelJoint)->SetParam(
-                    "fmax", 0, (double)torque_);
-            }
-
-            this->model_->GetJoint(wheelJoint)->SetParam("vel", 0,
-                (double)currentCommand_.drive.speed / wheelRadius_);
-        }
-            
         publishOdometry();
         ros::spinOnce();
         lastUpdate_ = info.simTime;
@@ -245,6 +274,7 @@ void AckermannDrivePlugin::initParams(sdf::ElementPtr sdf) {
     driveTopic_ = getParam<std::string>("driveTopic", "ackermann_cmd", sdf);
 
     baseLink_ = getParam<std::string>("robotBaseLink", "base_link", sdf);
+    hamsterRotationPattern_ = getParam<bool>("hamsterRotationPattern", false, sdf);
 
     if (!robotNamespace_.empty()) {
 
