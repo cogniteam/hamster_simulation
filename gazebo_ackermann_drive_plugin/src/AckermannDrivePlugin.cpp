@@ -122,8 +122,6 @@ void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
             linearVelocity = maxSpeed_/wheelRadius_ * 0.1 * sin(linearZeroCounter_);
             linearVelocity *= 0.99;
 
-            ROS_INFO("linear velocity %f", linearVelocity);
-
             if (linearVelocity < 0) {
                 steering *= -1;
             }
@@ -139,7 +137,7 @@ void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
 
             if (stop) {
             this->model_->GetJoint(wheelJoint)->SetParam(
-                "fmax", 0, (double)torque_ * 100);
+                "fmax", 0, (double)torque_ * 10);
             } else {
                 this->model_->GetJoint(wheelJoint)->SetParam(
                     "fmax", 0, (double)torque_);
