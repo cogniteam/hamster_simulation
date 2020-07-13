@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <launch> 
   <arg name="agent" default="agent1"/>
-  <arg name="scale_linear" default="2"/>
-  <arg name="scale_angular" default="4"/>
+  <arg name="scale_linear" default="1.2"/>
+  <arg name="scale_angular" default="1"/>
   <arg name="dev" default="/dev/input/js0"/>
   
   <node name="hamster_teleop_node" pkg="hamster_teleop" type="hamster_teleop_node" output="screen">

@@ -37,18 +37,17 @@ void AckermannDrivePlugin::commandCallback(
 
     currentCommand_ = *cmd;
 
+    double speed = fabs(currentCommand_.drive.speed);
+
     //
     // Speed constraints
     //
 
-    if (currentCommand_.drive.speed < minSpeed_) {
+    if (speed < minSpeed_ && speed > 0) {
         currentCommand_.drive.speed = minSpeed_;
     }
 
-    if (currentCommand_.drive.speed > maxSpeed_) {
-        currentCommand_.drive.speed = maxSpeed_;
-    }
-
+    currentCommand_.drive.speed = copysign(min(speed, maxSpeed_), cmd->drive.speed);
 }
 
 void AckermannDrivePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf) {
@@ -109,13 +108,11 @@ void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
 
         auto linearVelocity = (double)currentCommand_.drive.speed / wheelRadius_;
 
-        // ROS_INFO("linear velocity %f", linearVelocity);
-        
-        bool isRotationOnly = currentCommand_.drive.speed == 0 &&
-            currentCommand_.drive.steering_angle != 0;
+        bool isRotationOnly = (double)fabs(currentCommand_.drive.speed) < (minSpeed_ / 2) &&
+            fabs(steering) > 0.02;
 
-        bool stop = currentCommand_.drive.speed == 0 && 
-            currentCommand_.drive.steering_angle == 0;
+        bool stop = fabs(currentCommand_.drive.speed) < (minSpeed_ / 2) && 
+            fabs(steering) < 0.02;
 
         if (isRotationOnly) {
             linearZeroCounter_ += 0.04;
@@ -125,19 +122,13 @@ void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
             if (linearVelocity < 0) {
                 steering *= -1;
             }
-
-            // if (previousVelocity_ > linearVelocity) {
-            //     linearZeroCounter_ = 0;
-            // }
-            
-            // previousVelocity_ = linearVelocity;
         }
 
         for (auto&& wheelJoint : wheelJoints_) {
 
             if (stop) {
             this->model_->GetJoint(wheelJoint)->SetParam(
-                "fmax", 0, (double)torque_ * 10);
+                "fmax", 0, (double)torque_ * 100);
             } else {
                 this->model_->GetJoint(wheelJoint)->SetParam(
                     "fmax", 0, (double)torque_);

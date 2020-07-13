@@ -1,0 +1,21 @@
+<launch>
+
+    <arg name="robot_id" default="agent1" />
+
+    <group ns="$(arg robot_id)">
+
+        <node name="hupster_wandering_node" pkg="hupster_wandering" type="hupster_wandering_node">
+            <param name="base_link" value="$(arg robot_id)/base_link" />
+            <param name="max_velocity" value="0.35" />
+            <remap from="move_base/local_costmap/costmap" to="costmap_node/costmap/costmap" />
+        </node>
+
+        <node name="costmap_node" pkg="costmap_2d" type="costmap_2d_node" clear_params="true">
+            <rosparam file="$(find hupster_wandering)/launch/params/costmap.yaml" command="load" ns="costmap" />
+            <param name="costmap/global_frame" value="$(arg robot_id)/odom" />
+            <param name="costmap/robot_base_frame" value="$(arg robot_id)/base_link" />
+        </node>
+
+    </group>
+
+</launch>

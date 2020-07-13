@@ -82,7 +82,7 @@ private:
      ack.drive.speed = l_scale_ * (-leftTrigger + rightTrigger); // [-1..+1]
      ack.drive.steering_angle = a_scale_ * (current_joy_message_.axes[3] * M_PI_4);
 
-     ack.drive.steering_angle = fmax(-M_PI_4,fmin(M_PI_4, ack.drive.steering_angle));
+    //  ack.drive.steering_angle = fmax(-M_PI_4,fmin(M_PI_4, ack.drive.steering_angle));
 
      vel.linear.x = ack.drive.speed * 20;
      vel.angular.z = ack.drive.steering_angle * 5;

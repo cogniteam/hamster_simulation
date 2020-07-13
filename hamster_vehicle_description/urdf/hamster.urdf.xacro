@@ -67,9 +67,8 @@
   </joint>
 
   <joint name="camera_joint" type="fixed">
-    <axis xyz="0 1 0" />
     <xacro:if value="${version == 'V7'}">
-      <origin xyz="0.12673 0 0.028" rpy="1.57 0 1.57"/>
+      <origin xyz="0.12673 0 0.028" rpy="0 0 0"/>
     </xacro:if>
       <xacro:if value="${version == 'V6'}">
       <origin xyz="0.1 0 0.02" rpy="0 0 0"/>
@@ -77,6 +76,16 @@
     <parent link="base_link"/>
     <child link="camera_link"/>
   </joint>
+
+
+  <xacro:if value="${version == 'V7'}">
+    <link name="camera_optical_frame_link"/>
+      <joint name="camera_optical_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="-1.57 0 -1.57"/>
+        <parent link="camera_link"/>
+        <child link="camera_optical_frame_link"/>
+      </joint>
+  </xacro:if>
 
   <!-- Hokuyo Laser -->
   <link name="lidar_link">
@@ -143,7 +152,7 @@
       <driveTopic>ackermann_cmd</driveTopic>
       <odomNoiseMean>0.0</odomNoiseMean>
       <odomNoiseStddev>0.01</odomNoiseStddev>
-      <minSpeed>-1.2</minSpeed>
+      <minSpeed>0.1</minSpeed>
       <maxSpeed>1.2</maxSpeed>
       <hamsterRotationPattern>true</hamsterRotationPattern>
     </plugin>
@@ -171,7 +180,7 @@
   <gazebo reference="lidar_link">
     <sensor type="gpu_ray" name="head_hokuyo_sensor">
       <pose>0 0 0 0 0 0</pose>
-      <visualize>true</visualize>
+      <visualize>false</visualize>
       <update_rate>10</update_rate>
       <ray>
         <scan>
@@ -210,26 +219,26 @@
           <image>
             <width>640</width>
             <height>480</height>
-            <format>R8G8B8</format>
+            <format>B8G8R8</format>
           </image>
           <clip>
             <near>0.05</near>
-            <far>3</far>
+            <far>200</far>
           </clip>
         </camera>
         <plugin name="camera_controller" filename="libgazebo_ros_openni_kinect.so">
           <baseline>0.2</baseline>
           <alwaysOn>true</alwaysOn>
-          <updateRate>1.0</updateRate>
+          <updateRate>30.0</updateRate>
           <cameraName></cameraName>
           <imageTopicName>camera/color/image_raw</imageTopicName>
           <cameraInfoTopicName>camera/color/camera_info</cameraInfoTopicName>
           <depthImageTopicName>camera/depth/image_raw</depthImageTopicName>
           <depthImageInfoTopicName>camera/depth/camera_info</depthImageInfoTopicName>
           <pointCloudTopicName>camera/depth/points</pointCloudTopicName>
-          <frameName>$(arg agent)/camera_link</frameName>
+          <frameName>camera_optical_frame_link</frameName>
           <pointCloudCutoff>0.5</pointCloudCutoff>
-          <pointCloudCutoffMax>3.0</pointCloudCutoffMax>
+          <pointCloudCutoffMax>5.0</pointCloudCutoffMax>
           <distortionK1>0.00000001</distortionK1>
           <distortionK2>0.00000001</distortionK2>
           <distortionK3>0.00000001</distortionK3>
