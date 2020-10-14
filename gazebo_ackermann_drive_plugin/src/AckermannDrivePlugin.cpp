@@ -5,6 +5,8 @@
  */
 
 #include <AckermannDrivePlugin.h>
+#include <string>
+#include <iostream>
 
 
 namespace gazebo{
@@ -53,6 +55,7 @@ void AckermannDrivePlugin::commandCallback(
 void AckermannDrivePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf) {
 
     initParams(sdf);
+
     
     ros::NodeHandle node(robotNamespace_);
 
@@ -63,6 +66,10 @@ void AckermannDrivePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf) {
   
     this->model_ = model;
 
+    if(!model_) {
+        return;
+    }
+
     this->model_->GetJointController()->SetPositionPID(
         this->model_->GetJoint(frontRightWheelSteeringJoint_)->GetScopedName(), 
                 steeringfrontRightPid_);
@@ -70,7 +77,7 @@ void AckermannDrivePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf) {
     this->model_->GetJointController()->SetPositionPID(
         this->model_->GetJoint(frontLeftWheelSteeringJoint_)->GetScopedName(), 
                 steeringfrontLeftPid_);
-
+        
     this->model_->GetJointController()->SetPositionTarget(
         frontRightWheelSteeringJoint_, 0.0);
 
@@ -82,6 +89,7 @@ void AckermannDrivePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf) {
             "fmax", 0, (double)torque_);
         this->model_->GetJoint(wheelJoint)->SetParam(
             "vel", 0, 0.0);
+
     }
 
     this->updateConnection_ = event::Events::ConnectWorldUpdateBegin(
@@ -92,6 +100,8 @@ void AckermannDrivePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf) {
 }
 
 void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
+
+    
      if (lastUpdate_ == common::Time()) {
         lastUpdate_ = info.simTime;
         return;
@@ -126,6 +136,10 @@ void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
 
         for (auto&& wheelJoint : wheelJoints_) {
 
+            if(!model_) {
+                return;
+            }
+
             if (stop) {
             this->model_->GetJoint(wheelJoint)->SetParam(
                 "fmax", 0, (double)torque_ * 100);
@@ -146,7 +160,9 @@ void AckermannDrivePlugin::Update(const common::UpdateInfo &info) {
                     leftWheelSteering((double)steering));
 
         publishOdometry();
+
         ros::spinOnce();
+
         lastUpdate_ = info.simTime;
     }
 }
@@ -165,6 +181,13 @@ inline double AckermannDrivePlugin::leftWheelSteering(double baseAngle) {
 
 void AckermannDrivePlugin::publishOdometry() {
 
+    if(!model_) {
+        return;
+    }
+
+    if(this->model_->GetLink(baseLink_) == NULL) {
+        return;
+    }
     auto position = this->model_->GetLink(baseLink_)->WorldPose().Pos();
     auto rotation = this->model_->GetLink(baseLink_)->WorldPose().Rot();
 
@@ -175,6 +198,7 @@ void AckermannDrivePlugin::publishOdometry() {
     if (currentCommand_.drive.speed !=0) {
         xPoseAccumulateError_ += odomNoise_.gaussian(
             mean_, stddev_) * fabs(this->model_->GetLink(baseLink_)->WorldLinearVel().X());
+
         yPoseAccumulateError_ += odomNoise_.gaussian(
             mean_, stddev_) * fabs(this->model_->GetLink(baseLink_)->WorldLinearVel().Y());
     }
@@ -186,7 +210,7 @@ void AckermannDrivePlugin::publishOdometry() {
         mean_, stddev_) * fabs(this->model_->GetLink(baseLink_)->WorldAngularVel().Z());
 
     //
-    // Tf publishing
+    //Tf publishing
     //
 
     double roll, pitch, yaw;
@@ -203,7 +227,7 @@ void AckermannDrivePlugin::publishOdometry() {
         transform, ros::Time::now(), odomFrame_, baseFrame_));
 
     //
-    // Odom ros message publishing
+    //Odom ros message publishing
     //
 
     nav_msgs::Odometry odomMsg;
@@ -280,9 +304,7 @@ void AckermannDrivePlugin::initParams(sdf::ElementPtr sdf) {
         odomFrame_ = tf::resolve(robotNamespace_, odomFrame_);
 
         baseLink_ = robotNamespace_ + "::" + baseLink_;
-
     }
-
 }
 
 } // namespace gazebo

@@ -1,5 +1,5 @@
 <launch>
- <arg name="agent" default="agent2"/>
+ <arg name="agent" default="agent1"/>
  <arg name="cmd_timeout" default="0.5"/>
  <arg name="use_joystick" default="false" />
  <arg name="joystick_dev" default="/dev/input/js0"/>
