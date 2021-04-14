@@ -188,8 +188,8 @@ void AckermannDrivePlugin::publishOdometry() {
     if(this->model_->GetLink(baseLink_) == NULL) {
         return;
     }
-    auto position = this->model_->GetLink(baseLink_)->WorldPose().Pos();
-    auto rotation = this->model_->GetLink(baseLink_)->WorldPose().Rot();
+    auto position = this->model_->GetLink(baseLink_)->GetWorldPose().pos;
+    auto rotation = this->model_->GetLink(baseLink_)->GetWorldPose().rot;
 
     //
     // Odometry noise
@@ -197,29 +197,29 @@ void AckermannDrivePlugin::publishOdometry() {
 
     if (currentCommand_.drive.speed !=0) {
         xPoseAccumulateError_ += odomNoise_.gaussian(
-            mean_, stddev_) * fabs(this->model_->GetLink(baseLink_)->WorldLinearVel().X());
+            mean_, stddev_) * fabs(this->model_->GetLink(baseLink_)->GetWorldLinearVel().x);
 
         yPoseAccumulateError_ += odomNoise_.gaussian(
-            mean_, stddev_) * fabs(this->model_->GetLink(baseLink_)->WorldLinearVel().Y());
+            mean_, stddev_) * fabs(this->model_->GetLink(baseLink_)->GetWorldLinearVel().y);
     }
 
-    auto xPose = position.X() + xPoseAccumulateError_;
-    auto yPose = position.Y() + yPoseAccumulateError_;
+    auto xPose = position.x + xPoseAccumulateError_;
+    auto yPose = position.y + yPoseAccumulateError_;
 
     yawAccumulateError_ += odomNoise_.gaussian(
-        mean_, stddev_) * fabs(this->model_->GetLink(baseLink_)->WorldAngularVel().Z());
+        mean_, stddev_) * fabs(this->model_->GetLink(baseLink_)->GetWorldAngularVel().z);
 
     //
     //Tf publishing
     //
 
     double roll, pitch, yaw;
-    tf::Quaternion q(rotation.X(), rotation.Y(), rotation.Z(), rotation.W());
+    tf::Quaternion q(rotation.x, rotation.y, rotation.z, rotation.w);
     tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
     q.setRPY(roll, pitch, yaw + yawAccumulateError_);
 
     tf::Transform transform;
-    transform.setOrigin(tf::Vector3(xPose, yPose, position.Z()));
+    transform.setOrigin(tf::Vector3(xPose, yPose, position.z));
 
     transform.setRotation(q);
 
@@ -237,17 +237,17 @@ void AckermannDrivePlugin::publishOdometry() {
 
     odomMsg.pose.pose.position.x = xPose;
     odomMsg.pose.pose.position.y = yPose;
-    odomMsg.pose.pose.position.z = position.Z();
+    odomMsg.pose.pose.position.z = position.z;
 
     tf::quaternionTFToMsg(q, odomMsg.pose.pose.orientation);
 
-    odomMsg.twist.twist.linear.x = this->model_->GetLink(baseLink_)->WorldLinearVel().X();
-    odomMsg.twist.twist.linear.y = this->model_->GetLink(baseLink_)->WorldLinearVel().Y();
-    odomMsg.twist.twist.linear.z = this->model_->GetLink(baseLink_)->WorldLinearVel().Z();
+    odomMsg.twist.twist.linear.x = this->model_->GetLink(baseLink_)->GetWorldLinearVel().x;
+    odomMsg.twist.twist.linear.y = this->model_->GetLink(baseLink_)->GetWorldLinearVel().y;
+    odomMsg.twist.twist.linear.z = this->model_->GetLink(baseLink_)->GetWorldLinearVel().z;
 
-    odomMsg.twist.twist.angular.x = this->model_->GetLink(baseLink_)->WorldAngularVel().X();
-    odomMsg.twist.twist.angular.y = this->model_->GetLink(baseLink_)->WorldAngularVel().Y();
-    odomMsg.twist.twist.angular.z = this->model_->GetLink(baseLink_)->WorldAngularVel().Z();
+    odomMsg.twist.twist.angular.x = this->model_->GetLink(baseLink_)->GetWorldAngularVel().x;
+    odomMsg.twist.twist.angular.y = this->model_->GetLink(baseLink_)->GetWorldAngularVel().y;
+    odomMsg.twist.twist.angular.z = this->model_->GetLink(baseLink_)->GetWorldAngularVel().z;
 
     odomPublisher_.publish(odomMsg);
 
